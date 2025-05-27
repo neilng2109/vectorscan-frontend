@@ -4,3 +4,4 @@ pinecone-client
 openai 
 python-dotenv 
 pyspellchecker 
+flask-cors 
