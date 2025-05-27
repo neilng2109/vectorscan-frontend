@@ -1,0 +1,15 @@
+# Ignore Python cache and virtual environment files 
+__pycache__/ 
+*.pyc 
+# Ignore sensitive files 
+.env 
+# Ignore logs and temporary files 
+*.log 
+*.tmp 
+# Ignore Excel files 
+*.xlsx 
+# Ignore virtual environment directories 
+Scripts/ 
+Include/ 
+Lib/ 
+share/ 
