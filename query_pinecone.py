@@ -16,6 +16,8 @@ def get_asset_name(fault_input):
     if 'steering' in fault_lower:
         return 'Steering Gear Pump'
     if 'cooling' in fault_lower and 'pump' in fault_lower:
+        if '#2' in fault_lower:
+            return 'Cooling Pump #2'
         return 'Cooling Pump #1'
     if 'hvac' in fault_lower:
         return 'HVAC System'
