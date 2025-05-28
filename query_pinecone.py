@@ -11,6 +11,40 @@ pc = Pinecone(api_key=os.getenv("PINECONE_API_KEY"))
 index = pc.Index("vectorscan-faults")
 openai_client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 
+def get_asset_name(fault_input):
+    fault_lower = fault_input.lower()
+    if 'steering' in fault_lower:
+        return 'Steering Gear Pump'
+    if 'cooling' in fault_lower and 'pump' in fault_lower:
+        return 'Cooling Pump #1'
+    if 'hvac' in fault_lower:
+        return 'HVAC System'
+    if 'generator' in fault_lower:
+        return 'Emergency Generator'
+    if 'engine' in fault_lower:
+        return 'Main Engine'
+    if 'freshwater' in fault_lower:
+        return 'Freshwater Generator'
+    if 'fire suppression' in fault_lower:
+        return 'Fire Suppression System'
+    if 'radar' in fault_lower:
+        return 'Navigation Radar'
+    if 'ballast' in fault_lower:
+        return 'Ballast Tank'
+    if 'bilge' in fault_lower:
+        return 'Bilge Pump'
+    if 'bow thruster' in fault_lower:
+        return 'Bow Thruster'
+    if 'refrigeration' in fault_lower:
+        return 'Galley Refrigeration Unit'
+    if 'stabilizer' in fault_lower:
+        return 'Stabilizer Fin'
+    if 'elevator' in fault_lower:
+        return 'Passenger Elevator'
+    if 'wastewater' in fault_lower:
+        return 'Wastewater Treatment System'
+    return 'Unknown Equipment'
+
 def query_fault_description(fault_input):
     # Step 1: Embed the input fault description using the new OpenAI API
     embedding_response = openai_client.embeddings.create(
@@ -27,41 +61,54 @@ def query_fault_description(fault_input):
     )
     print("Pinecone Query Response:", query_response)  # Debug: Log the full query response
 
-    # Step 3: Extract relevant information from the matches
+    # Step 3: Determine the expected equipment
+    expected_equipment = get_asset_name(fault_input)
+    print("Expected Equipment:", expected_equipment)
+
+    # Step 4: Filter matches to only include those for the expected equipment
     matches = query_response['matches']
-    if not matches:
-        return "No similar faults found in the database."
-
-    # Debug: Print the metadata to inspect its structure
-    primary_match = matches[0]['metadata']
-    print("Primary Match Metadata:", primary_match)
-
-    # Access metadata fields
-    equipment = primary_match.get('equipment_affected', 'Unknown Equipment')
-    diagnosis = primary_match.get('diagnosis', f"{equipment} issue detected")
-    likely_causes = primary_match.get('cause', 'Cause not identified')
-    symptoms = primary_match.get('symptoms_observed', 'Symptoms not specified')
-
-    past_faults = [
-        {
-            "equipment": match['metadata'].get('equipment_affected', 'Unknown Equipment'),
-            "fault": match['metadata'].get('fault_description', 'Unknown Fault'),
-            "resolution": match['metadata'].get('resolution_action', 'Not resolved'),
-            "id": match['id'],
-            "date": match['metadata'].get('date_of_fault', 'Unknown')
-        }
-        for match in matches
+    filtered_matches = [
+        match for match in matches
+        if match['metadata'].get('equipment_affected', '').lower() == expected_equipment.lower()
     ]
 
-    # Step 4: Use OpenAI to generate recommended actions using the new API
+    # If no matches for the expected equipment, use a fallback diagnosis
+    if not filtered_matches:
+        diagnosis = f"{expected_equipment} experienced {fault_input.lower()}"
+        likely_causes = "Cause not identified due to lack of historical data"
+        symptoms = "No symptoms recorded"
+        past_faults = []
+    else:
+        # Use the top match for diagnosis, causes, and symptoms
+        primary_match = filtered_matches[0]['metadata']
+        print("Primary Match Metadata:", primary_match)
+
+        # Access metadata fields
+        equipment = primary_match.get('equipment_affected', 'Unknown Equipment')
+        diagnosis = primary_match.get('diagnosis', f"{equipment} issue detected")
+        likely_causes = primary_match.get('cause', 'Cause not identified')
+        symptoms = primary_match.get('symptoms_observed', 'Symptoms not specified')
+
+        past_faults = [
+            {
+                "equipment": match['metadata'].get('equipment_affected', 'Unknown Equipment'),
+                "fault": match['metadata'].get('fault_description', 'Unknown Fault'),
+                "resolution": match['metadata'].get('resolution_action', 'Not resolved'),
+                "id": match['id'],
+                "date": match['metadata'].get('date_of_fault', 'Unknown')
+            }
+            for match in filtered_matches
+        ]
+
+    # Step 5: Use OpenAI to generate recommended actions
     past_faults_text = "\n".join([
-        f"Equipment: {f['equipment']}, Fault: {f['fault']}, Symptoms: {match['metadata'].get('symptoms_observed', 'N/A')}, Cause: {match['metadata'].get('cause', 'N/A')}, Resolution: {f['resolution']}"
-        for f, match in zip(past_faults, matches)
+        f"Equipment: {f['equipment']}, Fault: {f['fault']}, Symptoms: {f.get('symptoms_observed', 'N/A')}, Cause: {f.get('cause', 'N/A')}, Resolution: {f['resolution']}"
+        for f in past_faults
     ])
     prompt = f"""
     You are a shipboard diagnostic assistant for a 130,000-ton cruise ship. Based on the following historical fault data, provide exactly three recommended actions for the fault: "{fault_input}".
 
-    Equipment: {equipment}
+    Equipment: {expected_equipment}
     Diagnosis: {diagnosis}
     Symptoms Observed: {symptoms}
     Likely Causes: {likely_causes}
@@ -83,7 +130,7 @@ def query_fault_description(fault_input):
     while len(recommended_actions) < 3:
         recommended_actions.append("- Review maintenance logs for additional insights")
 
-    # Step 5: Format the response
+    # Step 6: Format the response
     past_faults_table = "\n".join([
         f"| {f['equipment']:<20} | {f['fault']:<25} | {f['resolution']:<30} | {f['date']:<15} | {f['id']:<5} |"
         for f in past_faults
