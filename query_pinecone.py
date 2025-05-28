@@ -11,6 +11,17 @@ pc = Pinecone(api_key=os.getenv("PINECONE_API_KEY"))
 index = pc.Index("vectorscan-faults")
 openai_client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 
+def extract_fault_description(fault_input):
+    # Simple heuristic to extract a fault description from the query
+    # Remove equipment identifiers and common words to isolate the fault
+    fault_lower = fault_input.lower()
+    equipment_terms = ['cooling pump #1', 'cooling pump #2', 'air handler #1', 'breaker panel #3', 'steering gear pump', 'hvac system', 'emergency generator', 'main engine', 'freshwater generator', 'fire suppression system', 'navigation radar', 'ballast tank', 'bilge pump', 'bow thruster', 'galley refrigeration unit', 'stabilizer fin', 'passenger elevator', 'wastewater treatment system']
+    for term in equipment_terms:
+        fault_lower = fault_lower.replace(term, '').strip()
+    # Remove extra spaces and common words
+    fault_lower = ' '.join(fault_lower.split())
+    return fault_lower if fault_lower else "unknown fault"
+
 def query_fault_description(fault_input):
     # Step 1: Embed the input fault description using the new OpenAI API
     embedding_response = openai_client.embeddings.create(
@@ -31,10 +42,12 @@ def query_fault_description(fault_input):
     matches = query_response['matches']
     if not matches:
         # Fallback if no matches are found
-        diagnosis = f"Unknown Equipment experienced {fault_input.lower()}"
+        fault_desc = extract_fault_description(fault_input)
+        diagnosis = f"Potential issue detected: {fault_desc}"
         likely_causes = "Cause not identified due to lack of historical data"
         symptoms = "No symptoms recorded"
         past_faults = []
+        equipment = "Unknown Equipment"
     else:
         # Use the top match for diagnosis, causes, and symptoms
         primary_match = matches[0]['metadata']
