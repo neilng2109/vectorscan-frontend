@@ -1,6 +1,6 @@
 flask 
 gunicorn 
-pinecone-client 
+pinecone 
 openai 
 python-dotenv 
 pyspellchecker 
