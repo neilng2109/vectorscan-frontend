@@ -3,127 +3,110 @@ from dotenv import load_dotenv
 from pinecone import Pinecone
 from openai import OpenAI
 
-# Load environment variables from .env file
-load_dotenv()
+load_dotenv("C:/Users/neilg/vectorscan/venv/.env")
+PINECONE_API_KEY = os.getenv("PINECONE_API_KEY")
+OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
 
 # Initialize Pinecone and OpenAI
-pc = Pinecone(api_key=os.getenv("PINECONE_API_KEY"))
+pc = Pinecone(api_key=PINECONE_API_KEY)
 index = pc.Index("vectorscan-faults")
-openai_client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
+openai_client = OpenAI(api_key=OPENAI_API_KEY)
 
-def extract_fault_description(fault_input):
-    # Simple heuristic to extract a fault description from the query
-    # Remove equipment identifiers and common words to isolate the fault
-    fault_lower = fault_input.lower()
-    equipment_terms = ['cooling pump #1', 'cooling pump #2', 'air handler #1', 'breaker panel #3', 'steering gear pump', 'hvac system', 'emergency generator', 'main engine', 'freshwater generator', 'fire suppression system', 'navigation radar', 'ballast tank', 'bilge pump', 'bow thruster', 'galley refrigeration unit', 'stabilizer fin', 'passenger elevator', 'wastewater treatment system']
-    for term in equipment_terms:
-        fault_lower = fault_lower.replace(term, '').strip()
-    # Remove extra spaces and common words
-    fault_lower = ' '.join(fault_lower.split())
-    return fault_lower if fault_lower else "unknown fault"
+def generate_embedding(text):
+    response = openai_client.embeddings.create(input=text, model="text-embedding-ada-002")
+    return response.data[0].embedding
 
-def query_fault_description(fault_input):
-    # Step 1: Embed the input fault description using the new OpenAI API
-    embedding_response = openai_client.embeddings.create(
-        model="text-embedding-ada-002",
-        input=fault_input
-    )
-    fault_embedding = embedding_response.data[0].embedding
+def query_fault_description(fault_input, ship_filter=None):
+    try:
+        # Normalize fault input for better matching
+        fault_input_normalized = " ".join(sorted(fault_input.lower().strip().split()))
+        # Extract equipment from fault input (simplified heuristic)
+        equipment = "Main Engine" if "engine" in fault_input_normalized else "Cooling Pump" if "pump" in fault_input_normalized else "Unknown"
+        # Default diagnosis for common faults
+        default_diagnoses = {
+            "engine main overheat": (
+                "**Diagnosis:** Main engine overheat detected.\n"
+                "**Cause:** Likely coolant flow issue or thermostat failure.\n"
+                "**Resolution:** Inspect coolant system, clear blockages, replace thermostat."
+            ),
+            "cooling high pump temperature": (
+                "**Diagnosis:** Cooling pump high temperature detected.\n"
+                "**Cause:** Likely clogged filter or impeller damage.\n"
+                "**Resolution:** Inspect and clean filter, check impeller, ensure flow."
+            ),
+            "cooling overheating pump": (
+                "**Diagnosis:** Cooling pump overheating detected.\n"
+                "**Cause:** Likely clogged filter or impeller damage.\n"
+                "**Resolution:** Inspect and clean filter, check impeller, ensure flow."
+            )
+        }
+        default_response = default_diagnoses.get(fault_input_normalized, None)
+        
+        # Generate embedding
+        fault_embedding = generate_embedding(fault_input)  # Use raw input for embedding
+        # Query Pinecone with optional ship filter
+        query_params = {
+            "vector": fault_embedding,
+            "top_k": 5,  # Top 5 similar faults
+            "include_metadata": True,
+            "filter": {"equipment": {"$eq": equipment}} if equipment != "Unknown" else {}
+        }
+        if ship_filter and ship_filter.lower() != "all":
+            query_params["filter"]["ship"] = {"$eq": ship_filter}  # Add ship filter if provided
 
-    # Step 2: Query Pinecone for similar faults
-    query_response = index.query(
-        vector=fault_embedding,
-        top_k=3,
-        include_metadata=True
-    )
-    print("Pinecone Query Response:", query_response)  # Debug: Log the full query response
+        results = index.query(**query_params)
+        print(f"Debug: Pinecone matches found: {len(results['matches'])}")  # Debug print
+        
+        # Debug: Print all matches
+        for match in results["matches"]:
+            metadata = match["metadata"]
+            print(f"Debug: Metadata: {metadata}")
 
-    # Step 3: Extract relevant information from the matches
-    matches = query_response['matches']
-    if not matches:
-        # Fallback if no matches are found
-        fault_desc = extract_fault_description(fault_input)
-        diagnosis = f"Potential issue detected: {fault_desc}"
-        likely_causes = "Cause not identified due to lack of historical data"
-        symptoms = "No symptoms recorded"
-        past_faults = []
-        equipment = "Unknown Equipment"
-    else:
-        # Use the top match for diagnosis, causes, and symptoms
-        primary_match = matches[0]['metadata']
-        print("Primary Match Metadata:", primary_match)
-
-        # Access metadata fields from the top match
-        equipment = primary_match.get('equipment_affected', 'Unknown Equipment')
-        diagnosis = primary_match.get('diagnosis', f"{equipment} issue detected")
-        likely_causes = primary_match.get('cause', 'Cause not identified')
-        symptoms = primary_match.get('symptoms_observed', 'Symptoms not specified')
-
-        past_faults = [
-            {
-                "equipment": match['metadata'].get('equipment_affected', 'Unknown Equipment'),
-                "fault": match['metadata'].get('fault_description', 'Unknown Fault'),
-                "resolution": match['metadata'].get('resolution_action', 'Not resolved'),
-                "id": match['id'],
-                "date": match['metadata'].get('date_of_fault', 'Unknown')
-            }
-            for match in matches
-        ]
-
-    # Step 4: Use OpenAI to generate recommended actions
-    past_faults_text = "\n".join([
-        f"Equipment: {f['equipment']}, Fault: {f['fault']}, Symptoms: {f.get('symptoms_observed', 'N/A')}, Cause: {f.get('cause', 'N/A')}, Resolution: {f['resolution']}"
-        for f in past_faults
-    ])
-    prompt = f"""
-    You are a shipboard diagnostic assistant for a 130,000-ton cruise ship. Based on the following historical fault data, provide exactly three recommended actions for the fault: "{fault_input}".
-
-    Equipment: {equipment}
-    Diagnosis: {diagnosis}
-    Symptoms Observed: {symptoms}
-    Likely Causes: {likely_causes}
-    Historical Faults:
-    {past_faults_text}
-
-    Provide exactly 3 recommended actions, marking urgent ones with [!]. Ensure the actions are practical and specific for a cruise ship environment. Format each action as a bullet point starting with '-'.
-    """
-    openai_response = openai_client.chat.completions.create(
-        model="gpt-4",
-        messages=[
-            {"role": "system", "content": "You are a shipboard diagnostic assistant."},
-            {"role": "user", "content": prompt}
-        ],
-        temperature=0.7
-    )
-    recommended_actions = openai_response.choices[0].message.content.strip().split('\n')
-    # Ensure we have exactly 3 actions
-    while len(recommended_actions) < 3:
-        recommended_actions.append("- Review maintenance logs for additional insights")
-
-    # Step 5: Format the response
-    past_faults_table = "\n".join([
-        f"| {f['equipment']:<20} | {f['fault']:<25} | {f['resolution']:<30} | {f['date']:<15} | {f['id']:<5} |"
-        for f in past_faults
-    ])
-    response = f"""
-{fault_input.title()} - Fault Diagnosis Report
------------------------------------------------
-Diagnosis: {diagnosis}
-Symptoms Observed: {symptoms}
-Likely Causes: {likely_causes}
-Recommended Actions:
-{recommended_actions[0]}
-{recommended_actions[1]}
-{recommended_actions[2]}
-Similar Past Faults:
-| Equipment            | Fault                     | Resolution                     | Date            | ID    |
-|----------------------|---------------------------|--------------------------------|-----------------|-------|
-{past_faults_table}
-    """
-    return response
+        # Select the most relevant past fault (if it matches the input fault type)
+        context = []
+        previous_faults = []
+        for match in results["matches"][:1]:  # Limit to top 1
+            metadata = match["metadata"]
+            fault_entry = f"Fault: {metadata.get('fault', 'Unknown')}, Equipment: {metadata.get('equipment', 'Unknown')}, Cause: {metadata.get('cause', 'Unknown')}, Resolution: {metadata.get('resolution', 'Not specified')}"
+            print(f"Debug: Match: {fault_entry}")
+            # Check if the fault description and cause are relevant (e.g., contains "overheat" and a plausible cause)
+            fault_desc = metadata.get('fault', '').lower()
+            cause = metadata.get('cause', '').lower()
+            if ("overheat" in fault_desc and "overheat" in fault_input_normalized and 
+                any(keyword in cause for keyword in ["coolant", "thermostat", "flow", "pump", "filter", "impeller"])):
+                context.append(fault_entry)
+                previous_faults.append(fault_entry)
+        context_str = "\n".join(context)
+        
+        # Generate diagnosis if no default response
+        if not default_response:
+            prompt = (
+                f"You are a maritime fault diagnosis expert. "
+                f"Fault: '{fault_input}'.\n"
+                f"Equipment: {equipment if equipment != 'Unknown' else 'Not specified'}.\n"
+                f"Context of most similar past fault: {context_str if context_str else 'No similar faults found.'}\n"
+                "Provide a concise diagnosis, cause, and resolution in 20–30 words, focusing on the input fault. Use the past fault as context only if its cause is directly relevant (e.g., coolant-related for overheating). Otherwise, provide a general diagnosis. Format as: **Diagnosis:** [text]\n**Cause:** [text]\n**Resolution:** [text]"
+            )
+            response = openai_client.chat.completions.create(
+                model="gpt-4o-mini",
+                messages=[{"role": "user", "content": prompt}],
+                max_tokens=50
+            )
+            diagnosis = response.choices[0].message.content.strip()
+        else:
+            diagnosis = default_response
+        
+        # Combine diagnosis with previous fault
+        if previous_faults:
+            previous_faults_str = "\n\n**Similar Past Fault:**\n" + "\n".join(previous_faults)
+            return f"{diagnosis}{previous_faults_str}"
+        return diagnosis
+    except Exception as e:
+        return f"Error: {str(e)}"
 
 if __name__ == "__main__":
-    import sys
-    fault_input = sys.argv[1] if len(sys.argv) > 1 else "cooling pump overheating"
+    # Interactive input
+    fault_input = input("Enter fault description (e.g., Main Engine Overheat): ")
+    result = query_fault_description(fault_input)
     print(f"Input: {fault_input}")
-    print("Result:", query_fault_description(fault_input))
+    print(f"Result: {result}")

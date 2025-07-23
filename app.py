@@ -1,15 +1,15 @@
-from flask import Flask, request, jsonify
+from flask import Flask, request, jsonify, render_template
 from flask_cors import CORS
 from flask_jwt_extended import JWTManager, create_access_token, jwt_required, get_jwt_identity
 from query_pinecone import query_fault_description
 import os
 
-app = Flask(__name__)
-CORS(app)  # Enable CORS for React UI
-app.config['JWT_SECRET_KEY'] = os.environ.get('JWT_SECRET_KEY', 'your-secure-key')  # Set in Heroku env
+app = Flask(__name__, template_folder='templates')
+CORS(app, origins=["http://localhost:3000", "http://vectorscan.io:3000"])
+app.config['JWT_SECRET_KEY'] = os.environ.get('JWT_SECRET_KEY', 'your-secure-key')
 jwt = JWTManager(app)
 
-# Mock user database (replace with PostgreSQL for production)
+# Mock user database
 users = {
     'engineer_iona': {'password': 'pass123', 'role': 'ETO_Iona', 'ship': 'Iona'},
     'engineer_wonder': {'password': 'pass456', 'role': 'ETO_Wonder', 'ship': 'Wonder of the Seas'},
@@ -18,8 +18,8 @@ users = {
 }
 
 @app.route('/')
-def home():
-    return jsonify({'message': 'VectorScan API is running. Use POST /query to diagnose faults.'})
+def landing():
+    return render_template('landing.html')
 
 @app.route('/login', methods=['POST'])
 def login():
@@ -31,25 +31,19 @@ def login():
         return jsonify(token=access_token), 200
     return jsonify(error='Invalid credentials'), 401
 
-@app.route('/dashboard', methods=['GET'])
-@jwt_required()
-def dashboard():
-    current_user = get_jwt_identity()
-    ship = current_user['ship']
-    return jsonify(message=f'Welcome to VectorScan Dashboard for {ship}')
-
-@app.route('/query', methods=['POST'])
+@app.route('/query', methods=['GET', 'POST'])
 @jwt_required()
 def query():
     current_user = get_jwt_identity()
     ship = current_user['ship']
-    data = request.json
-    fault_input = data.get('fault_input', '')
-    if not fault_input:
-        return jsonify({'error': 'Fault description required'}), 400
-    # Pass ship filter to query_fault_description (update query_pinecone.py if needed)
-    result = query_fault_description(fault_input, ship_filter=ship)
-    return jsonify({'result': result})
+    if request.method == 'POST':
+        data = request.json
+        fault_input = data.get('fault_description', '')
+        if not fault_input:
+            return jsonify({'error': 'Fault description required'}), 400
+        result = query_fault_description(fault_input, ship_filter=ship)
+        return jsonify({'result': result})
+    return render_template('query.html')
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run(debug=True, host='0.0.0.0', port=5000)
