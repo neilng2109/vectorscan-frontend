@@ -1,7 +1,8 @@
-from flask import Flask, request, jsonify, render_template
+from flask import Flask, render_template, request, jsonify
 from flask_cors import CORS
 from flask_jwt_extended import JWTManager, create_access_token, jwt_required, get_jwt_identity
 import os
+from query_pinecone import query_fault_description
 
 app = Flask(__name__, template_folder='templates')
 CORS(app, origins=["http://localhost:3000", "http://vectorscan.io:3000"])
@@ -40,9 +41,14 @@ def query():
         fault_input = data.get('fault_description', '')
         if not fault_input:
             return jsonify({'error': 'Fault description required'}), 400
-        # Temporary placeholder - will be replaced with full Pinecone functionality
-        result = f"Temporary response for fault: {fault_input} on ship: {ship}. Full AI diagnosis coming soon!"
-        return jsonify({'result': result})
+        # Use AI-powered Pinecone query for real maritime fault diagnosis
+        try:
+            result = query_fault_description(fault_input, ship_filter=ship)
+            return jsonify({'result': result})
+        except Exception as e:
+            # Fallback response if AI service is unavailable
+            fallback_result = f"AI service temporarily unavailable. Fault logged: {fault_input} on {ship}. Please contact technical support."
+            return jsonify({'result': fallback_result, 'error': str(e)})
     return render_template('query.html')
 
 if __name__ == '__main__':
