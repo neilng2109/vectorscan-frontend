@@ -1,7 +1,6 @@
 from flask import Flask, request, jsonify, render_template
 from flask_cors import CORS
 from flask_jwt_extended import JWTManager, create_access_token, jwt_required, get_jwt_identity
-from query_pinecone import query_fault_description
 import os
 
 app = Flask(__name__, template_folder='templates')
@@ -41,7 +40,8 @@ def query():
         fault_input = data.get('fault_description', '')
         if not fault_input:
             return jsonify({'error': 'Fault description required'}), 400
-        result = query_fault_description(fault_input, ship_filter=ship)
+        # Temporary placeholder - will be replaced with full Pinecone functionality
+        result = f"Temporary response for fault: {fault_input} on ship: {ship}. Full AI diagnosis coming soon!"
         return jsonify({'result': result})
     return render_template('query.html')
 
