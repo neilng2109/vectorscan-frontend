@@ -3,9 +3,13 @@ from dotenv import load_dotenv
 from pinecone import Pinecone
 from openai import OpenAI
 
-load_dotenv("C:/Users/neilg/vectorscan/venv/.env")
+load_dotenv()  # Load from .env file if it exists, otherwise use system env vars
 PINECONE_API_KEY = os.getenv("PINECONE_API_KEY")
 OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
+
+# Fallback for development if API keys are not found
+if not PINECONE_API_KEY or not OPENAI_API_KEY:
+    print("Warning: API keys not found in environment variables")
 
 # Initialize Pinecone and OpenAI
 pc = Pinecone(api_key=PINECONE_API_KEY)
