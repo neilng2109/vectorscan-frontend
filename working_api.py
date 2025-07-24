@@ -24,6 +24,44 @@ users = {
 def health():
     return jsonify({"status": "healthy", "message": "VectorScan API is working!"})
 
+@app.route('/debug-query', methods=['POST', 'OPTIONS'])
+def debug_query():
+    """Debug endpoint without JWT to test query functionality"""
+    if request.method == 'OPTIONS':
+        response = jsonify({'status': 'ok'})
+        response.headers.add('Access-Control-Allow-Origin', '*')
+        response.headers.add('Access-Control-Allow-Headers', 'Content-Type,Authorization')
+        response.headers.add('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE,OPTIONS')
+        return response
+    
+    try:
+        print(f"Debug query endpoint called")
+        data = request.get_json()
+        print(f"Debug request data: {data}")
+        
+        fault_description = data.get('fault_description', '') if data else 'Test fault'
+        ship_filter = data.get('ship_filter', 'All') if data else 'All'
+        
+        # Use safe AI integration
+        diagnosis = query_fault_description_safe(fault_description, ship_filter)
+        
+        response_data = {
+            "result": diagnosis,
+            "debug": "Debug endpoint working without JWT"
+        }
+        
+        response = jsonify(response_data)
+        response.headers.add('Access-Control-Allow-Origin', '*')
+        return response
+        
+    except Exception as e:
+        print(f"Debug query error: {str(e)}")
+        response = jsonify({
+            "error": f"Debug query error: {str(e)}"
+        })
+        response.headers.add('Access-Control-Allow-Origin', '*')
+        return response, 500
+
 @app.route('/login', methods=['POST', 'OPTIONS'])
 def login():
     if request.method == 'OPTIONS':
