@@ -87,6 +87,11 @@ def login():
                 }
             )
             
+            # Debug: Log the generated token
+            print(f"Generated JWT token: {access_token}")
+            print(f"Token length: {len(access_token)}")
+            print(f"Token segments: {len(access_token.split('.'))}")
+            
             response = jsonify({
                 "success": True,
                 "token": access_token,
@@ -127,6 +132,16 @@ def query():
     
     # Handle JWT validation manually to provide better error messages
     try:
+        # Debug: Log the received Authorization header
+        auth_header = request.headers.get('Authorization', '')
+        print(f"Received Authorization header: {auth_header}")
+        
+        if auth_header.startswith('Bearer '):
+            token = auth_header[7:]  # Remove 'Bearer ' prefix
+            print(f"Extracted token: {token}")
+            print(f"Token length: {len(token)}")
+            print(f"Token segments: {len(token.split('.'))}")
+        
         from flask_jwt_extended import verify_jwt_in_request
         verify_jwt_in_request()
         current_user = get_jwt_identity()
