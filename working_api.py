@@ -130,22 +130,37 @@ def query():
         response.headers.add('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE,OPTIONS')
         return response
     
-    # Handle JWT validation manually to provide better error messages
+    # Handle JWT validation with better error handling
     try:
-        # Debug: Log the received Authorization header
+        # Get and validate Authorization header
         auth_header = request.headers.get('Authorization', '')
-        print(f"Received Authorization header: {auth_header}")
+        print(f"Received Authorization header: {auth_header[:50]}...")
         
-        if auth_header.startswith('Bearer '):
-            token = auth_header[7:]  # Remove 'Bearer ' prefix
-            print(f"Extracted token: {token}")
-            print(f"Token length: {len(token)}")
-            print(f"Token segments: {len(token.split('.'))}")
+        if not auth_header:
+            raise Exception("No Authorization header provided")
         
+        if not auth_header.startswith('Bearer '):
+            raise Exception("Invalid Authorization header format")
+        
+        token = auth_header[7:].strip()  # Remove 'Bearer ' prefix and strip whitespace
+        print(f"Extracted token length: {len(token)}")
+        
+        if not token:
+            raise Exception("Empty token after Bearer prefix")
+        
+        # Check token format (should have 3 parts separated by dots)
+        token_parts = token.split('.')
+        print(f"Token segments: {len(token_parts)}")
+        
+        if len(token_parts) != 3:
+            raise Exception(f"Invalid JWT format - expected 3 segments, got {len(token_parts)}")
+        
+        # Validate JWT using Flask-JWT-Extended
         from flask_jwt_extended import verify_jwt_in_request
         verify_jwt_in_request()
         current_user = get_jwt_identity()
-        print(f"JWT validated for user: {current_user}")
+        print(f"JWT validated successfully for user: {current_user}")
+        
     except Exception as jwt_error:
         print(f"JWT validation failed: {str(jwt_error)}")
         response = jsonify({
