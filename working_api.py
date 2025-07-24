@@ -89,9 +89,17 @@ def query():
         return response
     
     try:
+        print(f"Query endpoint called with method: {request.method}")
+        print(f"Headers: {dict(request.headers)}")
+        
         data = request.get_json()
-        fault_description = data.get('fault_description', '')
-        ship_filter = data.get('ship_filter', 'All')
+        print(f"Request data: {data}")
+        
+        fault_description = data.get('fault_description', '') if data else ''
+        ship_filter = data.get('ship_filter', 'All') if data else 'All'
+        
+        print(f"Fault description: {fault_description}")
+        print(f"Ship filter: {ship_filter}")
         
         # Use safe AI integration that handles missing API keys gracefully
         diagnosis = query_fault_description_safe(fault_description, ship_filter)
