@@ -11,6 +11,12 @@ def query_fault_description_safe(fault_input, ship_filter=None):
     Safe version of fault diagnosis that handles missing API keys gracefully
     """
     try:
+        # Debug: Log API key status
+        print(f"PINECONE_API_KEY exists: {bool(PINECONE_API_KEY)}")
+        print(f"OPENAI_API_KEY exists: {bool(OPENAI_API_KEY)}")
+        print(f"PINECONE_API_KEY value: {PINECONE_API_KEY[:20] if PINECONE_API_KEY else 'None'}...")
+        print(f"OPENAI_API_KEY value: {OPENAI_API_KEY[:20] if OPENAI_API_KEY else 'None'}...")
+        
         # Check if API keys are available
         if not PINECONE_API_KEY or not OPENAI_API_KEY or PINECONE_API_KEY == "your-pinecone-api-key-here" or OPENAI_API_KEY == "your-openai-api-key-here":
             print("Using mock diagnosis - API keys not configured")
