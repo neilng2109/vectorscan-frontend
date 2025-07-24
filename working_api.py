@@ -1,6 +1,6 @@
 from flask import Flask, request, jsonify
 from flask_cors import CORS
-from flask_jwt_extended import JWTManager, create_access_token, jwt_required
+from flask_jwt_extended import JWTManager, create_access_token, jwt_required, get_jwt_identity
 import os
 from safe_ai_query import query_fault_description_safe
 
@@ -116,7 +116,6 @@ def login():
         return response, 500
 
 @app.route('/query', methods=['POST', 'OPTIONS'])
-@jwt_required()
 def query():
     if request.method == 'OPTIONS':
         # Handle preflight request
@@ -126,6 +125,20 @@ def query():
         response.headers.add('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE,OPTIONS')
         return response
     
+    # Handle JWT validation manually to provide better error messages
+    try:
+        from flask_jwt_extended import verify_jwt_in_request
+        verify_jwt_in_request()
+        current_user = get_jwt_identity()
+        print(f"JWT validated for user: {current_user}")
+    except Exception as jwt_error:
+        print(f"JWT validation failed: {str(jwt_error)}")
+        response = jsonify({
+            "error": f"Authentication failed: {str(jwt_error)}"
+        })
+        response.headers.add('Access-Control-Allow-Origin', '*')
+        return response, 401
+    
     try:
         print(f"Query endpoint called with method: {request.method}")
         print(f"Headers: {dict(request.headers)}")
@@ -133,8 +146,13 @@ def query():
         data = request.get_json()
         print(f"Request data: {data}")
         
-        fault_description = data.get('fault_description', '') if data else ''
-        ship_filter = data.get('ship_filter', 'All') if data else 'All'
+        if not data:
+            response = jsonify({"error": "No JSON data provided"})
+            response.headers.add('Access-Control-Allow-Origin', '*')
+            return response, 400
+        
+        fault_description = data.get('fault_description', '')
+        ship_filter = data.get('ship_filter', 'All')
         
         print(f"Fault description: {fault_description}")
         print(f"Ship filter: {ship_filter}")
