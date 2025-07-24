@@ -6,20 +6,8 @@ from query_pinecone import query_fault_description
 
 app = Flask(__name__)
 
-# Enable CORS for all routes - allow requests from Vercel frontend
-CORS(app, 
-     origins=[
-         "https://www.vectorscan.io",
-         "https://vectorscan.io", 
-         "http://localhost:3000",  # For local development
-         "https://vectorscan-frontend.vercel.app",  # Vercel preview URLs
-         "https://vectorscan-frontend-7sn83uqhf-nei-gordons-projects.vercel.app",  # Current Vercel URL
-         "https://vectorscan-frontend.vercel.app"  # Main Vercel domain
-     ],
-     supports_credentials=True,
-     allow_headers=['Content-Type', 'Authorization'],
-     methods=['GET', 'POST', 'OPTIONS']
-)
+# Enable CORS for all routes - simplified configuration to fix login issue
+CORS(app, origins="*", supports_credentials=False)
 
 app.config['JWT_SECRET_KEY'] = os.environ.get('JWT_SECRET_KEY', 'your-secure-key')
 jwt = JWTManager(app)
