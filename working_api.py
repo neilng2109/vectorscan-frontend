@@ -97,7 +97,7 @@ def query():
         diagnosis = query_fault_description_safe(fault_description, ship_filter)
         
         response_data = {
-            "diagnosis": diagnosis
+            "result": diagnosis
         }
         
         response = jsonify(response_data)
