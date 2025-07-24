@@ -2,6 +2,7 @@ from flask import Flask, request, jsonify
 from flask_cors import CORS
 from flask_jwt_extended import JWTManager, create_access_token, jwt_required
 import os
+from safe_ai_query import query_fault_description_safe
 
 app = Flask(__name__)
 
@@ -92,8 +93,8 @@ def query():
         fault_description = data.get('fault_description', '')
         ship_filter = data.get('ship_filter', 'All')
         
-        # Simple mock response for fault diagnosis (AI integration will be added later)
-        diagnosis = f"**Diagnosis:** {fault_description} detected.\n**Cause:** System analysis indicates potential equipment malfunction.\n**Resolution:** Inspect and service the affected component immediately.\n\n**Ship Filter:** {ship_filter}\n**Status:** Mock response - AI integration pending."
+        # Use safe AI integration that handles missing API keys gracefully
+        diagnosis = query_fault_description_safe(fault_description, ship_filter)
         
         response_data = {
             "diagnosis": diagnosis
