@@ -1,7 +1,8 @@
 from flask import Flask, request, jsonify
 from flask_cors import CORS
-from flask_jwt_extended import JWTManager, create_access_token
+from flask_jwt_extended import JWTManager, create_access_token, jwt_required
 import os
+from query_pinecone import query_fault_description
 
 app = Flask(__name__)
 
@@ -77,6 +78,7 @@ def login():
         return response, 500
 
 @app.route('/query', methods=['POST', 'OPTIONS'])
+@jwt_required()
 def query():
     if request.method == 'OPTIONS':
         # Handle preflight request
@@ -89,10 +91,13 @@ def query():
     try:
         data = request.get_json()
         fault_description = data.get('fault_description', '')
+        ship_filter = data.get('ship_filter', 'All')
         
-        # Simple mock response for fault diagnosis
+        # Use the full AI-powered fault diagnosis functionality
+        diagnosis = query_fault_description(fault_description, ship_filter)
+        
         response_data = {
-            "diagnosis": f"**Diagnosis:** {fault_description} detected.\n**Cause:** System analysis indicates potential equipment malfunction.\n**Resolution:** Inspect and service the affected component immediately."
+            "diagnosis": diagnosis
         }
         
         response = jsonify(response_data)
