@@ -2,7 +2,6 @@ from flask import Flask, request, jsonify
 from flask_cors import CORS
 from flask_jwt_extended import JWTManager, create_access_token, jwt_required
 import os
-from query_pinecone import query_fault_description
 
 app = Flask(__name__)
 
@@ -93,8 +92,8 @@ def query():
         fault_description = data.get('fault_description', '')
         ship_filter = data.get('ship_filter', 'All')
         
-        # Use the full AI-powered fault diagnosis functionality
-        diagnosis = query_fault_description(fault_description, ship_filter)
+        # Simple mock response for fault diagnosis (AI integration will be added later)
+        diagnosis = f"**Diagnosis:** {fault_description} detected.\n**Cause:** System analysis indicates potential equipment malfunction.\n**Resolution:** Inspect and service the affected component immediately.\n\n**Ship Filter:** {ship_filter}\n**Status:** Mock response - AI integration pending."
         
         response_data = {
             "diagnosis": diagnosis
