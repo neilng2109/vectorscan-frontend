@@ -13,7 +13,8 @@ CORS(app,
          "https://vectorscan.io", 
          "http://localhost:3000",  # For local development
          "https://vectorscan-frontend.vercel.app",  # Vercel preview URLs
-         "https://vectorscan-frontend-7sn83uqhf-nei-gordons-projects.vercel.app"  # Current Vercel URL
+         "https://vectorscan-frontend-7sn83uqhf-nei-gordons-projects.vercel.app",  # Current Vercel URL
+         "https://vectorscan-frontend.vercel.app"  # Main Vercel domain
      ],
      supports_credentials=True,
      allow_headers=['Content-Type', 'Authorization'],
