@@ -4,31 +4,27 @@ from openai import OpenAI
 
 def query_fault_description(fault_input, ship_filter=None):
     try:
-        # Set proxy via env if needed (e.g., for restricted networks)
-        if os.environ.get('HTTP_PROXY'):
-            print("Using proxy from env")  # Debug
-        
-        # Initialize Pinecone (no 'proxies' arg - deprecated)
+        # Initialize Pinecone (latest SDK, no 'proxies' - deprecated; use env if needed)
         pc = Pinecone(
             api_key=os.environ.get('PINECONE_API_KEY')
         )
-        print("Pinecone initialized successfully")  # Debug
+        print("Pinecone initialized successfully")  # Debug log
         
         index = pc.Index('vectorscan-faults')
         
-        # Initialize OpenAI (no 'proxies' arg - use env if needed)
+        # Initialize OpenAI
         openai_client = OpenAI(
             api_key=os.environ.get('OPENAI_API_KEY')
         )
-        print("OpenAI initialized successfully")  # Debug
+        print("OpenAI initialized successfully")  # Debug log
         
-        # Generate embedding
+        # Generate embedding for fault_input
         embedding_response = openai_client.embeddings.create(
             model="text-embedding-ada-002",
             input=fault_input
         )
         embedding = embedding_response.data[0].embedding
-        print("Embedding generated successfully")  # Debug
+        print("Embedding generated successfully")  # Debug log
         
         # Query Pinecone
         query_params = {
@@ -39,9 +35,9 @@ def query_fault_description(fault_input, ship_filter=None):
             query_params['filter'] = {'ship': ship_filter}
         
         results = index.query(**query_params)
-        print("Pinecone query successful")  # Debug
+        print("Pinecone query successful")  # Debug log
         
-        # Process with OpenAI
+        # Process results with OpenAI for diagnosis
         context = "\n".join([
             match['metadata'].get('description', '') 
             for match in results['matches'] 
@@ -56,7 +52,7 @@ def query_fault_description(fault_input, ship_filter=None):
         )
         
         diagnosis = completion.choices[0].message.content
-        print("OpenAI completion successful")  # Debug
+        print("OpenAI completion successful")  # Debug log
         
         return {
             'diagnosis': diagnosis,
@@ -64,5 +60,5 @@ def query_fault_description(fault_input, ship_filter=None):
         }
         
     except Exception as e:
-        print(f"Query error: {str(e)}")  # Debug
+        print(f"Query error: {str(e)}")  # Debug log
         raise Exception(f"Query error: {str(e)}")  # Trigger fallback
