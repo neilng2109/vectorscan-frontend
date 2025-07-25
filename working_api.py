@@ -4,6 +4,11 @@ from flask_jwt_extended import JWTManager, create_access_token, jwt_required, ge
 import os
 from safe_ai_query import query_fault_description_safe
 
+import os
+print("Current working directory:", os.getcwd())
+print("PINECONE_API_KEY:", os.environ.get('PINECONE_API_KEY'))
+print("OPENAI_API_KEY:", os.environ.get('OPENAI_API_KEY'))
+
 app = Flask(__name__)
 
 # Enable CORS for all origins to fix login issue immediately
@@ -19,6 +24,24 @@ users = {
     'engineer_iona': {'password': 'pass123', 'role': 'ETO_Iona', 'ship': 'Iona'},
     'engineer_wonder': {'password': 'pass456', 'role': 'ETO_Wonder', 'ship': 'Wonder of the Seas'}
 }
+
+@app.route('/', methods=['GET'])
+def landing():
+    return jsonify({
+        "message": "Welcome to VectorScan Fault Diagnosis System",
+        "status": "operational",
+        "endpoints": {
+            "login": "/login",
+            "query": "/query",
+            "health": "/health",
+            "debug": "/debug-query"
+        },
+        "credentials": {
+            "engineer_iona": "pass123",
+            "engineer_wonder": "pass456",
+            "admin": "admin123"
+        }
+    })
 
 @app.route('/health', methods=['GET'])
 def health():

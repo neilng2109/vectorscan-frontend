@@ -1,8 +1,19 @@
+from dotenv import load_dotenv
+import os
+load_dotenv(os.path.join(os.path.dirname(__file__), '.env'))  # Explicit path to venv/.env
+print("Loaded env - PINECONE_API_KEY:", bool(os.getenv("PINECONE_API_KEY")))  # Debug print
+
 from flask import Flask, request, jsonify
 from flask_cors import CORS
 from flask_jwt_extended import JWTManager, create_access_token, jwt_required, get_jwt_identity
 import os
-from query_pinecone import query_fault_description
+from dotenv import load_dotenv
+
+# Load environment variables
+load_dotenv()
+
+# Import the query function from safe_ai_query.py
+from safe_ai_query import query_fault_description_safe
 
 app = Flask(__name__)
 
@@ -71,19 +82,21 @@ def query_fault():
         ship = current_user['ship']
         
         data = request.json
+        print("Received query data:", data)  # Add this for debug in server console
+
         if not data:
             return jsonify({'error': 'No data provided'}), 400
             
-        fault_input = data.get('fault_input', '').strip()  # Changed to 'fault_input' to match frontend
-        if not fault_input:
+        fault_input = data.get('fault_description', '').strip()  # Changed to match
+        if not fault_description:
             return jsonify({'error': 'Fault input required'}), 400
         
         # Use AI-powered Pinecone query for real maritime fault diagnosis
-        result = query_fault_description(fault_input, ship_filter=ship)
+        result = query_fault_description_safe(fault_description, ship_filter=ship)
         
         return jsonify({
             'result': result,
-            'fault_input': fault_input,
+            'fault_description': fault_description, # Updated key
             'ship': ship,
             'user': current_user['username']
         }), 200
@@ -93,7 +106,7 @@ def query_fault():
         # Fallback response if AI service is unavailable
         current_user = get_jwt_identity()
         ship = current_user.get('ship', 'Unknown')
-        fault_input = request.json.get('fault_input', 'Unknown fault') if request.json else 'Unknown fault'
+        fault_description = request.json.get('fault_description', 'Unknown fault') if request.json else 'Unknown fault'
         
         fallback_result = f"AI service temporarily unavailable. Fault logged: {fault_input} on {ship}. Please contact technical support."
         return jsonify({

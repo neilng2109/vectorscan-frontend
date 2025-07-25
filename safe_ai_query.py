@@ -1,14 +1,21 @@
 import os
 from dotenv import load_dotenv
 
-# Load environment variables
-load_dotenv()
+try:
+    from pinecone.pinecone import Pinecone
+    from openai import OpenAI
+except ImportError as e:
+    print(f"Import error: {str(e)}. Ensure pinecone and openai are installed.")
+
+# Load environment variables (relative path for flexibility)
+env_path = os.path.join(os.path.dirname(__file__), '.env')
+load_dotenv(env_path)  # Falls back to current dir if not found
 PINECONE_API_KEY = os.getenv("PINECONE_API_KEY")
 OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
 
 def query_fault_description_safe(fault_input, ship_filter=None):
     """
-    Safe version of fault diagnosis that handles missing API keys gracefully
+    Fault diagnosis using Pinecone and OpenAI—no mock fallback.
     """
     try:
         # Debug: Log API key status
@@ -19,14 +26,11 @@ def query_fault_description_safe(fault_input, ship_filter=None):
         
         # Check if API keys are available
         if not PINECONE_API_KEY or not OPENAI_API_KEY or PINECONE_API_KEY == "your-pinecone-api-key-here" or OPENAI_API_KEY == "your-openai-api-key-here":
-            print("Using mock diagnosis - API keys not configured")
-            return generate_mock_diagnosis(fault_input, ship_filter)
+            print("Key check failed - returning error")
+            return "Error: API keys not configured or invalid—please update .env and retry."
         
+        print("Key check passed - proceeding to AI diagnosis")
         print(f"Using AI-powered diagnosis for: {fault_input}")
-        
-        # Try to import and use the full AI functionality
-        from pinecone import Pinecone
-        from openai import OpenAI
         
         # Initialize clients
         pc = Pinecone(api_key=PINECONE_API_KEY)
@@ -37,21 +41,28 @@ def query_fault_description_safe(fault_input, ship_filter=None):
         response = openai_client.embeddings.create(input=fault_input, model="text-embedding-ada-002")
         fault_embedding = response.data[0].embedding
         
-        # Query Pinecone
+        # Query Pinecone with ship filter (commented for now)
+        # query_filter = {"ship": ship_filter} if ship_filter and ship_filter != 'All' else None
         results = index.query(
             vector=fault_embedding,
             top_k=3,
-            include_metadata=True
+            include_metadata=True,
+            # filter=query_filter
         )
         
         print(f"Pinecone returned {len(results['matches'])} matches")
+        
+        if results['matches']:
+            print("Sample metadata:", results['matches'][0]['metadata'])
         
         # Generate AI diagnosis
         context = ""
         if results['matches']:
             for match in results['matches'][:2]:
                 metadata = match.get('metadata', {})
-                context += f"Similar fault: {metadata.get('fault', 'Unknown')} - {metadata.get('cause', 'Unknown cause')}\n"
+                context += f"Similar fault: {metadata.get('fault', 'Unknown')} on {metadata.get('equipment', 'Unknown equipment')} - {metadata.get('cause', 'Unknown cause')}. Resolution: {metadata.get('resolution', 'N/A')}\n"
+        else:
+            context = "No similar faults found."
         
         prompt = f"""You are a maritime fault diagnosis expert. 
         Fault: '{fault_input}'
@@ -73,55 +84,19 @@ def query_fault_description_safe(fault_input, ship_filter=None):
         
         diagnosis = ai_response.choices[0].message.content.strip()
         
-        if context:
+        if context and context != "No similar faults found.":
             diagnosis += f"\n\n**Similar Past Faults:**\n{context}"
         
         diagnosis += "\n\n**Status:** AI-powered response with Pinecone similarity search"
         
+        print("AI diagnosis complete - returning result")
         return diagnosis
         
     except Exception as e:
         print(f"AI diagnosis failed: {str(e)}")
-        # If AI fails, return enhanced mock response with error info
-        return generate_mock_diagnosis(fault_input, ship_filter, error=str(e))
+        return f"Error during AI query: {str(e)}. Please try again or contact support."
 
-def generate_mock_diagnosis(fault_input, ship_filter=None, error=None):
-    """
-    Generate enhanced mock diagnosis response
-    """
-    # Enhanced mock responses based on fault type
-    fault_lower = fault_input.lower()
-    
-    if "engine" in fault_lower and "overheat" in fault_lower:
-        diagnosis = """**Diagnosis:** Main engine overheating detected.
-**Cause:** Likely coolant system malfunction or thermostat failure.
-**Resolution:** Check coolant levels, inspect thermostat, clear any blockages in cooling system."""
-    
-    elif "pump" in fault_lower and ("temperature" in fault_lower or "overheat" in fault_lower):
-        diagnosis = """**Diagnosis:** Cooling pump high temperature detected.
-**Cause:** Possible impeller damage or clogged filter restricting flow.
-**Resolution:** Inspect pump impeller, clean/replace filter, check for proper flow rates."""
-    
-    elif "cooling" in fault_lower:
-        diagnosis = """**Diagnosis:** Cooling system fault identified.
-**Cause:** System component failure or flow restriction.
-**Resolution:** Inspect cooling circuit, check pumps, valves, and heat exchangers."""
-    
-    else:
-        diagnosis = f"""**Diagnosis:** {fault_input} requires investigation.
-**Cause:** Equipment malfunction or operational parameter deviation.
-**Resolution:** Conduct systematic inspection of affected system components."""
-    
-    # Add ship filter info
-    if ship_filter and ship_filter != "All":
-        diagnosis += f"\n\n**Ship:** {ship_filter}"
-    
-    # Add status info
-    if error:
-        diagnosis += f"\n\n**Status:** Mock response (AI temporarily unavailable: {error[:50]}...)"
-    elif not PINECONE_API_KEY or PINECONE_API_KEY == "your-pinecone-api-key-here":
-        diagnosis += "\n\n**Status:** Mock response (API keys not configured)"
-    else:
-        diagnosis += "\n\n**Status:** Mock response (AI integration ready for testing)"
-    
-    return diagnosis
+if __name__ == "__main__":
+    # Optional test call - remove if not needed
+    test_result = query_fault_description_safe("pump vibration", ship_filter="Iona")
+    print(test_result)

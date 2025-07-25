@@ -118,6 +118,6 @@ def ingest_data(file_path):
 
 if __name__ == "__main__":
     print("Entering main block...")
-    file_path = "fault_data_updated.csv"
+    file_path = "C:/Users/neilg/vectorscan/fault_data.csv.csv"
     ingest_data(file_path)
     print("Script completed")
