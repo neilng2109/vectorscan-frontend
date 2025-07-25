@@ -4,32 +4,47 @@ from openai import OpenAI
 
 def query_fault_description(fault_input, ship_filter=None):
     try:
-        # Initialize Pinecone with latest API (no project_name or environment)
-        pc = Pinecone(api_key=os.environ.get('PINECONE_API_KEY'))
+        # Initialize Pinecone (no 'proxies' - deprecated; use env if needed)
+        pc = Pinecone(
+            api_key=os.environ.get('PINECONE_API_KEY')
+        )
+        print("Pinecone initialized")  # Debug
         
         index = pc.Index('vectorscan-faults')
         
         # Initialize OpenAI
-        openai_client = OpenAI(api_key=os.environ.get('OPENAI_API_KEY'))
+        openai_client = OpenAI(
+            api_key=os.environ.get('OPENAI_API_KEY')
+        )
+        print("OpenAI initialized")  # Debug
         
-        # Generate embedding for fault_input using OpenAI
+        # Generate embedding
         embedding_response = openai_client.embeddings.create(
             model="text-embedding-ada-002",
             input=fault_input
         )
         embedding = embedding_response.data[0].embedding
+        print("Embedding generated")  # Debug
         
         # Query Pinecone
-        query_params = {'vector': embedding, 'top_k': 5}
+        query_params = {
+            'vector': embedding,
+            'top_k': 5
+        }
         if ship_filter and ship_filter != 'All':
             query_params['filter'] = {'ship': ship_filter}
         
         results = index.query(**query_params)
+        print("Pinecone query successful")  # Debug
         
-        # Process results with OpenAI for diagnosis
-        context = "\n".join([match['metadata']['description'] for match in results['matches'] if 'metadata' in match and 'description' in match['metadata']])
+        # Process with OpenAI
+        context = "\n".join([
+            match['metadata'].get('description', '') 
+            for match in results['matches'] 
+            if 'metadata' in match
+        ])
         
-        prompt = f"Based on similar faults: {context}\nDiagnose: {fault_input}"
+        prompt = f"Based on similar faults: {context}\nDiagnose: {fault_input}\nProvide diagnosis, cause, resolution."
         
         completion = openai_client.chat.completions.create(
             model="gpt-4",
@@ -37,6 +52,7 @@ def query_fault_description(fault_input, ship_filter=None):
         )
         
         diagnosis = completion.choices[0].message.content
+        print("OpenAI completion successful")  # Debug
         
         return {
             'diagnosis': diagnosis,
@@ -44,4 +60,5 @@ def query_fault_description(fault_input, ship_filter=None):
         }
         
     except Exception as e:
-        raise Exception(f"Query error: {str(e)}")  # Raise to trigger fallback in app.py
+        print(f"Query error: {str(e)}")  # Debug
+        raise Exception(f"Query error: {str(e)}")  # Trigger fallback
