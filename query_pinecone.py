@@ -4,19 +4,23 @@ from openai import OpenAI
 
 def query_fault_description(fault_input, ship_filter=None):
     try:
-        # Initialize Pinecone (no 'proxies' - deprecated; use env if needed)
+        # Set proxy via env if needed (e.g., for restricted networks)
+        if os.environ.get('HTTP_PROXY'):
+            print("Using proxy from env")  # Debug
+        
+        # Initialize Pinecone (no 'proxies' arg - deprecated)
         pc = Pinecone(
             api_key=os.environ.get('PINECONE_API_KEY')
         )
-        print("Pinecone initialized")  # Debug
+        print("Pinecone initialized successfully")  # Debug
         
         index = pc.Index('vectorscan-faults')
         
-        # Initialize OpenAI
+        # Initialize OpenAI (no 'proxies' arg - use env if needed)
         openai_client = OpenAI(
             api_key=os.environ.get('OPENAI_API_KEY')
         )
-        print("OpenAI initialized")  # Debug
+        print("OpenAI initialized successfully")  # Debug
         
         # Generate embedding
         embedding_response = openai_client.embeddings.create(
@@ -24,7 +28,7 @@ def query_fault_description(fault_input, ship_filter=None):
             input=fault_input
         )
         embedding = embedding_response.data[0].embedding
-        print("Embedding generated")  # Debug
+        print("Embedding generated successfully")  # Debug
         
         # Query Pinecone
         query_params = {
@@ -44,7 +48,7 @@ def query_fault_description(fault_input, ship_filter=None):
             if 'metadata' in match
         ])
         
-        prompt = f"Based on similar faults: {context}\nDiagnose: {fault_input}\nProvide diagnosis, cause, resolution."
+        prompt = f"Based on similar faults: {context}\nDiagnose this fault: {fault_input}\nProvide diagnosis, cause, and resolution in structured format."
         
         completion = openai_client.chat.completions.create(
             model="gpt-4",
