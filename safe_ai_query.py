@@ -2,7 +2,7 @@ import os
 from dotenv import load_dotenv
 
 try:
-    from pinecone.pinecone import Pinecone
+    from pinecone import Pinecone # Updated import
     from openai import OpenAI
 except ImportError as e:
     print(f"Import error: {str(e)}. Ensure pinecone and openai are installed.")
