@@ -14,69 +14,70 @@ const LandingPage = () => {
     setLoading(true);
     setError('');
     try {
-      const response = await axios.post('http://localhost:5000/login', {  // Confirm backend URL
+      const response = await axios.post('https://api.vectorscan.io/login', {
         username,
         password,
       }, { withCredentials: true });
       localStorage.setItem('token', response.data.token);
       navigate('/query');
     } catch (err) {
-      setError('Invalid credentials');
+      setError('Invalid credentials or server error');
+      console.error('Login error:', err);
     }
     setLoading(false);
   };
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-blue-900 to-blue-300 flex items-center justify-center font-sans">
-      <div className="bg-white p-8 rounded-lg shadow-2xl w-full max-w-5xl transform transition-all duration-500 hover:shadow-blue-500/50">  // Increased max-w to 5xl
+      <div className="bg-white p-8 rounded-lg shadow-2xl w-full max-w-4xl transform transition-all duration-500 hover:shadow-blue-500/50">
         <header className="text-center mb-8">
-          <img src="/vectorscan-logo.png" alt="VectorScan Logo" className="h-32 mx-auto mb-6" />  // Slightly larger logo
-          <h1 className="text-5xl font-bold text-white bg-blue-700 p-3 rounded-t-lg">VectorScan</h1>  // Larger font/padding
-          <p className="text-2xl text-blue-100 mt-4">AI-Powered Maritime Fault Diagnosis</p>  // Larger text
+          <img src="/vectorscan-logo.png" alt="VectorScan Logo" className="h-24 mx-auto mb-4" />
+          <h1 className="text-4xl font-bold text-white bg-blue-700 p-2 rounded-t-lg">VectorScan</h1>
+          <p className="text-lg text-blue-100 mt-2">AI-Powered Maritime Fault Diagnosis</p>
         </header>
-        <div className="flex flex-col md:flex-row justify-between items-start gap-8">  // Flex-row on md+ for better side-by-side
+        <div className="flex flex-col md:flex-row justify-between items-start gap-6">
           <div className="w-full md:w-2/3 pr-0 md:pr-6">
-            <img src="/ship.jpg" alt="Maritime Vessel" className="w-full h-auto object-cover rounded-lg shadow-md mb-6" />  // Auto height for responsiveness
-            <p className="text-lg text-gray-700">
+            <img src="/ship.jpg" alt="Maritime Vessel" className="w-full h-64 object-cover rounded-lg shadow-md mb-4" />
+            <p className="text-base text-gray-700">
               Welcome to VectorScan, the cutting-edge solution for maritime fault diagnosis. Leverage AI to minimize downtime and enhance vessel efficiency. Join us to revolutionize maritime maintenance!
             </p>
           </div>
-          <form onSubmit={handleLogin} className="w-full md:w-1/3 space-y-6 bg-gray-50 p-8 rounded-lg shadow-inner">  // Increased space-y and padding for larger form
-            <h2 className="text-2xl font-semibold text-blue-800">Login</h2>  // Larger heading
+          <form onSubmit={handleLogin} className="w-full md:w-1/3 space-y-4 bg-gray-50 p-6 rounded-lg shadow-inner">
+            <h2 className="text-xl font-semibold text-blue-800">Login</h2>
             <div>
-              <label className="block text-base font-medium text-gray-700">Username</label>  // Larger text
+              <label className="block text-sm font-medium text-gray-700">Username</label>
               <input
                 type="text"
                 value={username}
                 onChange={(e) => setUsername(e.target.value)}
-                className="mt-2 block w-full p-3 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500 text-lg"  // Larger padding/text
+                className="mt-1 block w-full p-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500 text-base"
                 required
               />
             </div>
             <div>
-              <label className="block text-base font-medium text-gray-700">Password</label>
+              <label className="block text-sm font-medium text-gray-700">Password</label>
               <input
                 type="password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                className="mt-2 block w-full p-3 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500 text-lg"
+                className="mt-1 block w-full p-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500 text-base"
                 required
               />
             </div>
             <button
               type="submit"
               disabled={loading}
-              className="w-full bg-blue-600 text-white p-3 rounded-md hover:bg-blue-700 disabled:bg-blue-300 flex items-center justify-center text-lg"  // Larger padding/text
+              className="w-full bg-blue-600 text-white p-2 rounded-md hover:bg-blue-700 disabled:bg-blue-300 flex items-center justify-center text-base"
             >
               {loading ? (
-                <svg className="animate-spin h-6 w-6 mr-2 text-white" viewBox="0 0 24 24">  // Larger spinner
+                <svg className="animate-spin h-5 w-5 mr-2 text-white" viewBox="0 0 24 24">
                   <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
                   <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path>
                 </svg>
               ) : null}
               {loading ? 'Logging in...' : 'Login'}
             </button>
-            {error && <p className="text-red-600 text-base">{error}</p>}  // Larger text
+            {error && <p className="text-red-600 text-sm">{error}</p>}
           </form>
         </div>
       </div>
