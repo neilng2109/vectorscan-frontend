@@ -1,3 +1,4 @@
+// Updated for Vite deployment
 import React from 'react';
 import { Routes, Route } from 'react-router-dom';
 import LandingPage from './LandingPage.jsx';
