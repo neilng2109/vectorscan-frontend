@@ -75,59 +75,59 @@ const QueryPage = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-blue-900 to-blue-300 flex items-center justify-center font-sans">
-      <div className="bg-white p-8 rounded-lg shadow-2xl w-full max-w-5xl">
+      <div className="bg-white p-8 rounded-lg shadow-2xl w-full max-w-4xl">
         <header className="text-center mb-8">
-          <img src="/vectorscan-logo.png" alt="VectorScan Logo" className="h-32 mx-auto mb-4" />
-          <h1 className="text-5xl font-bold text-white bg-blue-700 p-3 rounded-t-lg">VectorScan Query</h1>
+          <img src="/vectorscan-logo.png" alt="VectorScan Logo" className="h-24 mx-auto mb-4" />
+          <h1 className="text-4xl font-bold text-white bg-blue-700 p-2 rounded-t-lg">VectorScan Query</h1>
         </header>
-        <form onSubmit={handleSubmit} className="space-y-6 bg-gray-50 p-8 rounded-lg shadow-inner">
+        <form onSubmit={handleSubmit} className="space-y-4 bg-gray-50 p-6 rounded-lg shadow-inner">
           <div>
-            <label className="block text-base font-medium text-gray-700">Fault Description</label>
+            <label className="block text-sm font-medium text-gray-700">Fault Description</label>
             <input
               type="text"
               value={faultDescription}
               onChange={(e) => setFaultDescription(e.target.value)}
-              className="mt-2 block w-full p-3 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500 text-lg"
+              className="mt-1 block w-full p-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
               required
             />
           </div>
           <button
             type="submit"
             disabled={loading}
-            className="w-full bg-blue-600 text-white p-3 rounded-md hover:bg-blue-700 disabled:bg-blue-300 flex items-center justify-center text-lg"
+            className="w-full bg-blue-600 text-white p-2 rounded-md hover:bg-blue-700 disabled:bg-blue-300 flex items-center justify-center"
           >
             {loading ? 'Submitting...' : 'Submit Query'}
           </button>
-          {error && <p className="text-red-600 text-base">{error}</p>}
+          {error && <p className="text-red-600 text-sm">{error}</p>}
         </form>
         {result && (
-          <div className="mt-8 p-8 bg-gray-50 rounded-lg shadow-inner">
-            <h2 className="text-2xl font-semibold text-blue-800 mb-6">Diagnosis Result</h2>
-            <div className="space-y-6">
+          <div className="mt-8 p-6 bg-gray-50 rounded-lg shadow-inner">
+            <h2 className="text-xl font-semibold text-blue-800 mb-4">Diagnosis Result</h2>
+            <div className="space-y-4">
               <div>
-                <h3 className="font-bold text-lg">Diagnosis</h3>
-                <p className="text-base">{result.diagnosis.trim()}</p>
+                <h3 className="font-bold">Diagnosis</h3>
+                <p>{result.diagnosis.trim()}</p>
               </div>
               <div>
-                <h3 className="font-bold text-lg">Cause</h3>
-                <p className="text-base">{result.cause.trim()}</p>
+                <h3 className="font-bold">Cause</h3>
+                <p>{result.cause.trim()}</p>
               </div>
               <div>
-                <h3 className="font-bold text-lg">Resolution</h3>
-                <p className="text-base">{result.resolution.trim()}</p>
+                <h3 className="font-bold">Resolution</h3>
+                <p>{result.resolution.trim()}</p>
               </div>
               <div>
-                <h3 className="font-bold text-lg">Similar Past Faults</h3>
-                <pre className="whitespace-pre-wrap text-base">{result.similarFaults.trim()}</pre>
+                <h3 className="font-bold">Similar Past Faults</h3>
+                <pre className="whitespace-pre-wrap">{result.similarFaults.trim()}</pre>
               </div>
               <div>
-                <h3 className="font-bold text-lg">Status</h3>
-                <p className="text-base">{result.status.trim()}</p>
+                <h3 className="font-bold">Status</h3>
+                <p>{result.status.trim()}</p>
               </div>
             </div>
             <button
               onClick={handleDownloadPDF}
-              className="mt-6 bg-green-600 text-white p-3 rounded-md hover:bg-green-700 text-lg"
+              className="mt-4 bg-green-600 text-white p-2 rounded-md hover:bg-green-700"
             >
               Download PDF
             </button>
