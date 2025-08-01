@@ -18,7 +18,7 @@ from safe_ai_query import query_fault_description_safe
 app = Flask(__name__)
 
 # Enable CORS for all routes - simplified configuration to fix login issue
-CORS(app, origins="*", supports_credentials=False)
+CORS(app, origins="https://www.vectorscan.io", supports_credentials=True)
 
 app.config['JWT_SECRET_KEY'] = os.environ.get('JWT_SECRET_KEY', 'your-secure-key')
 jwt = JWTManager(app)
