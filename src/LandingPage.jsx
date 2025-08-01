@@ -179,6 +179,7 @@ const LandingPage = () => {
           © 2024 VectorScan Maritime Solutions. Powered by AI & Machine Learning.
         </p>
       </div>
+    </div>
   );
 };
 
