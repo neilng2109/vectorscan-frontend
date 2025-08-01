@@ -58,6 +58,9 @@ const LandingPage = () => {
                 <p className="text-xl text-blue-100 font-light max-w-2xl mx-auto leading-relaxed">
                   Advanced AI-Powered Maritime Fault Diagnosis System
                 </p>
+                <div className="bg-red-500 text-white p-4 mt-4 rounded-lg font-bold text-2xl">
+                  🚨 DEPLOYMENT TEST - IF YOU SEE THIS, THE NEW CODE IS WORKING! 🚨
+                </div>
                 <div className="flex justify-center space-x-8 mt-8 text-blue-100">
                   <div className="text-center">
                     <div className="text-2xl font-bold">410+</div>
