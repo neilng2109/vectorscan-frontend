@@ -17,7 +17,7 @@ const LandingPage = () => {
       const response = await axios.post('https://api.vectorscan.io/login', {
         username,
         password,
-      }, { withCredentials: true });
+      });
       localStorage.setItem('token', response.data.token);
       navigate('/query');
     } catch (err) {
