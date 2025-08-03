@@ -45,12 +45,12 @@ const LandingPage = () => {
               </h1>
             </div>
             
-            {/* Ship Photo - Small Header Accent */}
+            {/* Ship Photo - Tiny Header Accent */}
             <div className="flex items-center">
               <img 
                 src="/ship.jpg" 
                 alt="Maritime Vessel" 
-                className="w-12 h-8 object-cover rounded-md opacity-80 mr-2" 
+                className="w-6 h-4 object-cover rounded opacity-70 mr-2" 
               />
               <span className="text-sm text-gray-600 font-medium">Maritime Intelligence</span>
             </div>
