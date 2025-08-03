@@ -128,16 +128,16 @@ const LandingPage = () => {
                   </div>
                 </div>
 
-                {/* Very Small Ship Accent */}
+                {/* Tiny Ship Accent */}
                 <div className="flex items-center justify-center mt-4 pt-4 border-t border-white/10">
                   <div className="flex items-center bg-white/5 backdrop-blur-sm rounded-lg p-2 border border-white/10">
-                    <div className="relative w-8 h-5 mr-2 flex-shrink-0">
+                    <div className="relative w-4 h-3 mr-2 flex-shrink-0">
                       <img 
                         src="/ship.jpg" 
                         alt="Maritime Vessel" 
-                        className="w-full h-full object-cover rounded opacity-60" 
+                        className="w-full h-full object-cover rounded opacity-40" 
                       />
-                      <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent rounded"></div>
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/30 to-transparent rounded"></div>
                     </div>
                     <div className="text-blue-200">
                       <div className="text-xs font-medium">Real-time Analysis</div>
