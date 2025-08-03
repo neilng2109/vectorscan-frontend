@@ -103,23 +103,26 @@ const QueryPage = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-ocean font-maritime">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-blue-50 font-['Inter']">
       {/* Enhanced Navigation */}
-      <nav className="bg-white/90 backdrop-blur-md shadow-lg border-b border-maritime-200 sticky top-0 z-50">
+      <nav className="bg-white/90 backdrop-blur-md shadow-lg border-b border-blue-200 sticky top-0 z-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-20">
             {/* Logo */}
             <div className="flex items-center group cursor-pointer" onClick={() => navigate('/')}>
-              <div className="w-12 h-12 bg-gradient-maritime rounded-xl flex items-center justify-center mr-4 shadow-lg group-hover:shadow-xl transition-all duration-300 animate-float">
+              <div 
+                className="w-12 h-12 bg-gradient-to-br from-blue-500 to-blue-700 rounded-xl flex items-center justify-center mr-4 shadow-lg group-hover:shadow-xl transition-all duration-300"
+                style={{ animation: 'float 3s ease-in-out infinite' }}
+              >
                 <svg className="w-7 h-7 text-white" fill="currentColor" viewBox="0 0 24 24">
                   <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/>
                 </svg>
               </div>
               <div>
-                <h1 className="text-xl lg:text-2xl font-bold text-ocean-900">
-                  Vector<span className="text-maritime-600">Scan</span>
+                <h1 className="text-xl lg:text-2xl font-bold text-slate-900">
+                  Vector<span className="text-blue-600">Scan</span>
                 </h1>
-                <p className="text-xs lg:text-sm text-ocean-600 font-medium">Diagnosis Dashboard</p>
+                <p className="text-xs lg:text-sm text-slate-600 font-medium">Diagnosis Dashboard</p>
               </div>
             </div>
             
@@ -130,13 +133,13 @@ const QueryPage = () => {
                   <span className="w-2 h-2 bg-green-500 rounded-full mr-2 animate-pulse"></span>
                   System Online
                 </span>
-                <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-maritime-100 text-maritime-800">
+                <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
                   🔬 AI Ready
                 </span>
               </div>
               <button
                 onClick={handleLogout}
-                className="bg-ocean-600 hover:bg-ocean-700 text-white font-medium py-2 px-4 rounded-lg transition-colors duration-300 flex items-center"
+                className="bg-slate-600 hover:bg-slate-700 text-white font-medium py-2 px-4 rounded-lg transition-colors duration-300 flex items-center"
               >
                 <svg className="w-4 h-4 mr-2" fill="currentColor" viewBox="0 0 20 20">
                   <path fillRule="evenodd" d="M3 3a1 1 0 00-1 1v12a1 1 0 102 0V4a1 1 0 00-1-1zm10.293 9.293a1 1 0 001.414 1.414l3-3a1 1 0 000-1.414l-3-3a1 1 0 10-1.414 1.414L14.586 9H7a1 1 0 100 2h7.586l-1.293 1.293z" clipRule="evenodd" />
@@ -149,7 +152,7 @@ const QueryPage = () => {
             <div className="md:hidden">
               <button
                 onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-                className="inline-flex items-center justify-center p-2 rounded-md text-ocean-600 hover:text-maritime-600 hover:bg-maritime-50 transition-colors duration-300"
+                className="inline-flex items-center justify-center p-2 rounded-md text-slate-600 hover:text-blue-600 hover:bg-blue-50 transition-colors duration-300"
               >
                 <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   {mobileMenuOpen ? (
@@ -164,20 +167,20 @@ const QueryPage = () => {
 
           {/* Mobile menu */}
           {mobileMenuOpen && (
-            <div className="md:hidden py-4 border-t border-maritime-200">
+            <div className="md:hidden py-4 border-t border-blue-200">
               <div className="flex flex-col space-y-4">
                 <div className="flex flex-col space-y-2">
                   <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800 w-fit">
                     <span className="w-2 h-2 bg-green-500 rounded-full mr-2 animate-pulse"></span>
                     System Online
                   </span>
-                  <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-maritime-100 text-maritime-800 w-fit">
+                  <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800 w-fit">
                     🔬 AI Ready
                   </span>
                 </div>
                 <button
                   onClick={handleLogout}
-                  className="bg-ocean-600 hover:bg-ocean-700 text-white font-medium py-2 px-4 rounded-lg transition-colors duration-300 flex items-center w-fit"
+                  className="bg-slate-600 hover:bg-slate-700 text-white font-medium py-2 px-4 rounded-lg transition-colors duration-300 flex items-center w-fit"
                 >
                   <svg className="w-4 h-4 mr-2" fill="currentColor" viewBox="0 0 20 20">
                     <path fillRule="evenodd" d="M3 3a1 1 0 00-1 1v12a1 1 0 102 0V4a1 1 0 00-1-1zm10.293 9.293a1 1 0 001.414 1.414l3-3a1 1 0 000-1.414l-3-3a1 1 0 10-1.414 1.414L14.586 9H7a1 1 0 100 2h7.586l-1.293 1.293z" clipRule="evenodd" />
@@ -194,49 +197,49 @@ const QueryPage = () => {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 lg:py-8">
         {/* Header Section */}
         <div className="text-center mb-8 lg:mb-12">
-          <div className="inline-flex items-center px-4 py-2 rounded-full bg-maritime-100 text-maritime-800 text-sm font-medium mb-4 lg:mb-6">
-            <span className="w-2 h-2 bg-maritime-500 rounded-full mr-2 animate-pulse"></span>
+          <div className="inline-flex items-center px-4 py-2 rounded-full bg-blue-100 text-blue-800 text-sm font-medium mb-4 lg:mb-6">
+            <span className="w-2 h-2 bg-blue-500 rounded-full mr-2 animate-pulse"></span>
             AI-Powered Maritime Fault Analysis
           </div>
-          <h1 className="text-3xl lg:text-4xl xl:text-5xl font-bold text-ocean-900 mb-3 lg:mb-4">
-            Fault Diagnosis <span className="text-maritime-600">Center</span>
+          <h1 className="text-3xl lg:text-4xl xl:text-5xl font-bold text-slate-900 mb-3 lg:mb-4">
+            Fault Diagnosis <span className="text-blue-600">Center</span>
           </h1>
-          <p className="text-lg lg:text-xl text-ocean-600 max-w-2xl mx-auto">
+          <p className="text-lg lg:text-xl text-slate-600 max-w-2xl mx-auto">
             Describe your maritime issue and get instant AI-powered diagnosis with actionable solutions
           </p>
         </div>
 
         {/* Query Form */}
-        <div className="bg-white/90 backdrop-blur-md rounded-2xl lg:rounded-3xl shadow-2xl border border-maritime-200 p-6 lg:p-8 xl:p-10 mb-6 lg:mb-8">
+        <div className="bg-white/90 backdrop-blur-md rounded-2xl lg:rounded-3xl shadow-2xl border border-blue-200 p-6 lg:p-8 xl:p-10 mb-6 lg:mb-8">
           <div className="flex flex-col sm:flex-row sm:items-center mb-6 lg:mb-8">
             <div className="flex items-center mb-4 sm:mb-0">
-              <div className="w-10 lg:w-12 h-10 lg:h-12 bg-gradient-to-br from-maritime-500 to-maritime-600 rounded-xl lg:rounded-2xl flex items-center justify-center mr-3 lg:mr-4 shadow-lg">
+              <div className="w-10 lg:w-12 h-10 lg:h-12 bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl lg:rounded-2xl flex items-center justify-center mr-3 lg:mr-4 shadow-lg">
                 <svg className="w-5 lg:w-6 h-5 lg:h-6 text-white" fill="currentColor" viewBox="0 0 20 20">
                   <path fillRule="evenodd" d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z" clipRule="evenodd" />
                 </svg>
               </div>
               <div>
-                <h2 className="text-xl lg:text-2xl font-bold text-ocean-900">Submit Fault Query</h2>
-                <p className="text-sm lg:text-base text-ocean-600">Provide detailed information for accurate analysis</p>
+                <h2 className="text-xl lg:text-2xl font-bold text-slate-900">Submit Fault Query</h2>
+                <p className="text-sm lg:text-base text-slate-600">Provide detailed information for accurate analysis</p>
               </div>
             </div>
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-4 lg:space-y-6">
             <div>
-              <label className="block text-sm font-semibold text-ocean-700 mb-2 lg:mb-3">
-                Fault Description <span className="text-coral-500">*</span>
+              <label className="block text-sm font-semibold text-slate-700 mb-2 lg:mb-3">
+                Fault Description <span className="text-red-500">*</span>
               </label>
               <textarea
                 value={faultDescription}
                 onChange={(e) => setFaultDescription(e.target.value)}
-                className="w-full px-4 lg:px-5 py-3 lg:py-4 border-2 border-ocean-200 rounded-lg lg:rounded-xl focus:ring-4 focus:ring-maritime-500/20 focus:border-maritime-500 transition-all duration-300 text-ocean-900 placeholder-ocean-400 bg-white/80 resize-none"
+                className="w-full px-4 lg:px-5 py-3 lg:py-4 border-2 border-slate-200 rounded-lg lg:rounded-xl focus:ring-4 focus:ring-blue-500/20 focus:border-blue-500 transition-all duration-300 text-slate-900 placeholder-slate-400 bg-white/80 resize-none"
                 placeholder="e.g., Main engine overheating with temperature reaching 95°C, unusual vibrations in propeller shaft during forward thrust, hydraulic system pressure drop from 150 to 90 PSI..."
                 rows="4"
                 required
               />
-              <div className="mt-3 flex items-start text-sm text-ocean-600">
-                <svg className="w-4 h-4 mr-2 mt-0.5 text-maritime-500 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+              <div className="mt-3 flex items-start text-sm text-slate-600">
+                <svg className="w-4 h-4 mr-2 mt-0.5 text-blue-500 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
                   <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clipRule="evenodd" />
                 </svg>
                 Include symptoms, measurements, conditions, and any relevant context for better analysis
@@ -244,7 +247,7 @@ const QueryPage = () => {
             </div>
 
             {error && (
-              <div className="bg-coral-50 border-2 border-coral-200 text-coral-700 px-4 lg:px-5 py-3 lg:py-4 rounded-lg lg:rounded-xl text-sm font-medium flex items-start animate-pulse">
+              <div className="bg-red-50 border-2 border-red-200 text-red-700 px-4 lg:px-5 py-3 lg:py-4 rounded-lg lg:rounded-xl text-sm font-medium flex items-start animate-pulse">
                 <svg className="w-5 h-5 mr-3 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
                   <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
                 </svg>
@@ -255,7 +258,7 @@ const QueryPage = () => {
             <button
               type="submit"
               disabled={loading || !faultDescription.trim()}
-              className="w-full bg-gradient-maritime hover:shadow-xl text-white font-bold py-3 lg:py-4 px-6 lg:px-8 rounded-lg lg:rounded-xl transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center text-base lg:text-lg group"
+              className="w-full bg-gradient-to-r from-blue-600 to-blue-700 hover:shadow-xl text-white font-bold py-3 lg:py-4 px-6 lg:px-8 rounded-lg lg:rounded-xl transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center text-base lg:text-lg group"
             >
               {loading ? (
                 <>
@@ -279,7 +282,7 @@ const QueryPage = () => {
 
         {/* Results Section */}
         {result && (
-          <div className="bg-white/90 backdrop-blur-md rounded-2xl lg:rounded-3xl shadow-2xl border border-maritime-200 p-6 lg:p-8 xl:p-10">
+          <div className="bg-white/90 backdrop-blur-md rounded-2xl lg:rounded-3xl shadow-2xl border border-blue-200 p-6 lg:p-8 xl:p-10">
             <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between mb-6 lg:mb-8">
               <div className="flex items-center mb-4 lg:mb-0">
                 <div className="w-10 lg:w-12 h-10 lg:h-12 bg-gradient-to-br from-green-500 to-emerald-600 rounded-xl lg:rounded-2xl flex items-center justify-center mr-3 lg:mr-4 shadow-lg">
@@ -288,8 +291,8 @@ const QueryPage = () => {
                   </svg>
                 </div>
                 <div>
-                  <h2 className="text-xl lg:text-2xl font-bold text-ocean-900">AI Diagnosis Complete</h2>
-                  <p className="text-sm lg:text-base text-ocean-600">Analysis generated in real-time</p>
+                  <h2 className="text-xl lg:text-2xl font-bold text-slate-900">AI Diagnosis Complete</h2>
+                  <p className="text-sm lg:text-base text-slate-600">Analysis generated in real-time</p>
                 </div>
               </div>
               <button
@@ -306,27 +309,27 @@ const QueryPage = () => {
             <div className="grid gap-4 lg:gap-6">
               {/* Diagnosis */}
               {result.diagnosis && (
-                <div className="bg-gradient-to-br from-maritime-50 to-maritime-100 rounded-xl lg:rounded-2xl p-4 lg:p-6 border-2 border-maritime-200">
+                <div className="bg-gradient-to-br from-blue-50 to-blue-100 rounded-xl lg:rounded-2xl p-4 lg:p-6 border-2 border-blue-200">
                   <div className="flex items-center mb-3 lg:mb-4">
-                    <div className="w-8 lg:w-10 h-8 lg:h-10 bg-gradient-maritime rounded-lg flex items-center justify-center mr-3 shadow-md">
+                    <div className="w-8 lg:w-10 h-8 lg:h-10 bg-gradient-to-br from-blue-500 to-blue-700 rounded-lg flex items-center justify-center mr-3 shadow-md">
                       <span className="text-white text-base lg:text-lg">🔍</span>
                     </div>
-                    <h3 className="text-lg lg:text-xl font-bold text-ocean-900">Primary Diagnosis</h3>
+                    <h3 className="text-lg lg:text-xl font-bold text-slate-900">Primary Diagnosis</h3>
                   </div>
-                  <p className="text-sm lg:text-base text-ocean-700 leading-relaxed">{result.diagnosis.trim()}</p>
+                  <p className="text-sm lg:text-base text-slate-700 leading-relaxed">{result.diagnosis.trim()}</p>
                 </div>
               )}
 
               {/* Cause */}
               {result.cause && (
-                <div className="bg-gradient-to-br from-coral-50 to-red-100 rounded-xl lg:rounded-2xl p-4 lg:p-6 border-2 border-coral-200">
+                <div className="bg-gradient-to-br from-red-50 to-orange-100 rounded-xl lg:rounded-2xl p-4 lg:p-6 border-2 border-red-200">
                   <div className="flex items-center mb-3 lg:mb-4">
-                    <div className="w-8 lg:w-10 h-8 lg:h-10 bg-gradient-to-br from-coral-500 to-red-600 rounded-lg flex items-center justify-center mr-3 shadow-md">
+                    <div className="w-8 lg:w-10 h-8 lg:h-10 bg-gradient-to-br from-red-500 to-orange-600 rounded-lg flex items-center justify-center mr-3 shadow-md">
                       <span className="text-white text-base lg:text-lg">⚠️</span>
                     </div>
-                    <h3 className="text-lg lg:text-xl font-bold text-ocean-900">Root Cause Analysis</h3>
+                    <h3 className="text-lg lg:text-xl font-bold text-slate-900">Root Cause Analysis</h3>
                   </div>
-                  <p className="text-sm lg:text-base text-ocean-700 leading-relaxed">{result.cause.trim()}</p>
+                  <p className="text-sm lg:text-base text-slate-700 leading-relaxed">{result.cause.trim()}</p>
                 </div>
               )}
 
@@ -337,9 +340,9 @@ const QueryPage = () => {
                     <div className="w-8 lg:w-10 h-8 lg:h-10 bg-gradient-to-br from-green-500 to-emerald-600 rounded-lg flex items-center justify-center mr-3 shadow-md">
                       <span className="text-white text-base lg:text-lg">🔧</span>
                     </div>
-                    <h3 className="text-lg lg:text-xl font-bold text-ocean-900">Recommended Solution</h3>
+                    <h3 className="text-lg lg:text-xl font-bold text-slate-900">Recommended Solution</h3>
                   </div>
-                  <p className="text-sm lg:text-base text-ocean-700 leading-relaxed">{result.resolution.trim()}</p>
+                  <p className="text-sm lg:text-base text-slate-700 leading-relaxed">{result.resolution.trim()}</p>
                 </div>
               )}
 
@@ -350,10 +353,10 @@ const QueryPage = () => {
                     <div className="w-8 lg:w-10 h-8 lg:h-10 bg-gradient-to-br from-purple-500 to-violet-600 rounded-lg flex items-center justify-center mr-3 shadow-md">
                       <span className="text-white text-base lg:text-lg">📈</span>
                     </div>
-                    <h3 className="text-lg lg:text-xl font-bold text-ocean-900">Historical Analysis</h3>
+                    <h3 className="text-lg lg:text-xl font-bold text-slate-900">Historical Analysis</h3>
                   </div>
                   <div className="bg-white/70 rounded-lg p-3 lg:p-4 border border-purple-200">
-                    <pre className="text-xs lg:text-sm text-ocean-700 leading-relaxed whitespace-pre-wrap font-mono overflow-x-auto">{result.similarFaults.trim()}</pre>
+                    <pre className="text-xs lg:text-sm text-slate-700 leading-relaxed whitespace-pre-wrap font-mono overflow-x-auto">{result.similarFaults.trim()}</pre>
                   </div>
                 </div>
               )}
@@ -365,9 +368,9 @@ const QueryPage = () => {
                     <div className="w-8 lg:w-10 h-8 lg:h-10 bg-gradient-to-br from-yellow-500 to-amber-600 rounded-lg flex items-center justify-center mr-3 shadow-md">
                       <span className="text-white text-base lg:text-lg">📊</span>
                     </div>
-                    <h3 className="text-lg lg:text-xl font-bold text-ocean-900">Status & Priority Assessment</h3>
+                    <h3 className="text-lg lg:text-xl font-bold text-slate-900">Status & Priority Assessment</h3>
                   </div>
-                  <p className="text-sm lg:text-base text-ocean-700 leading-relaxed">{result.status.trim()}</p>
+                  <p className="text-sm lg:text-base text-slate-700 leading-relaxed">{result.status.trim()}</p>
                 </div>
               )}
             </div>
@@ -376,21 +379,21 @@ const QueryPage = () => {
       </div>
 
       {/* Footer */}
-      <footer className="bg-ocean-900 text-white mt-12 lg:mt-16">
+      <footer className="bg-slate-900 text-white mt-12 lg:mt-16">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 lg:py-8">
           <div className="text-center">
             <div className="flex items-center justify-center mb-3 lg:mb-4">
-              <div className="w-6 lg:w-8 h-6 lg:h-8 bg-gradient-maritime rounded-lg flex items-center justify-center mr-2 lg:mr-3">
+              <div className="w-6 lg:w-8 h-6 lg:h-8 bg-gradient-to-br from-blue-500 to-blue-700 rounded-lg flex items-center justify-center mr-2 lg:mr-3">
                 <svg className="w-4 lg:w-5 h-4 lg:h-5 text-white" fill="currentColor" viewBox="0 0 24 24">
                   <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/>
                 </svg>
               </div>
               <span className="text-base lg:text-lg font-bold">VectorScan Maritime Solutions</span>
             </div>
-            <p className="text-ocean-300 text-xs lg:text-sm mb-3">
+            <p className="text-slate-300 text-xs lg:text-sm mb-3">
               © 2024 VectorScan Maritime Solutions. Advanced AI Diagnostics for Maritime Operations.
             </p>
-            <div className="flex flex-col sm:flex-row justify-center items-center space-y-1 sm:space-y-0 sm:space-x-4 text-xs text-ocean-400">
+            <div className="flex flex-col sm:flex-row justify-center items-center space-y-1 sm:space-y-0 sm:space-x-4 text-xs text-slate-400">
               <span className="flex items-center">
                 <span className="w-2 h-2 bg-green-400 rounded-full mr-1 animate-pulse"></span>
                 System Operational
@@ -403,6 +406,13 @@ const QueryPage = () => {
           </div>
         </div>
       </footer>
+      
+      <style jsx>{`
+        @keyframes float {
+          0%, 100% { transform: translateY(0) rotate(0deg); }
+          50% { transform: translateY(-8px) rotate(1deg); }
+        }
+      `}</style>
     </div>
   );
 };

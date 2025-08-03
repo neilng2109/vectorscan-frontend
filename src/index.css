@@ -1,8 +1,42 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
-
+@import "tailwindcss";
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
+
+@theme {
+  --font-maritime: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  
+  --color-maritime-50: #f0f9ff;
+  --color-maritime-100: #e0f2fe;
+  --color-maritime-200: #bae6fd;
+  --color-maritime-300: #7dd3fc;
+  --color-maritime-400: #38bdf8;
+  --color-maritime-500: #0ea5e9;
+  --color-maritime-600: #0284c7;
+  --color-maritime-700: #0369a1;
+  --color-maritime-800: #075985;
+  --color-maritime-900: #0c4a6e;
+  
+  --color-ocean-50: #f8fafc;
+  --color-ocean-100: #f1f5f9;
+  --color-ocean-200: #e2e8f0;
+  --color-ocean-300: #cbd5e1;
+  --color-ocean-400: #94a3b8;
+  --color-ocean-500: #64748b;
+  --color-ocean-600: #475569;
+  --color-ocean-700: #334155;
+  --color-ocean-800: #1e293b;
+  --color-ocean-900: #0f172a;
+  
+  --color-coral-50: #fef2f2;
+  --color-coral-100: #fee2e2;
+  --color-coral-200: #fecaca;
+  --color-coral-300: #fca5a5;
+  --color-coral-400: #f87171;
+  --color-coral-500: #ef4444;
+  --color-coral-600: #dc2626;
+  --color-coral-700: #b91c1c;
+  --color-coral-800: #991b1b;
+  --color-coral-900: #7f1d1d;
+}
 
 :root {
   font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
@@ -32,6 +66,42 @@ body {
 
 #root {
   min-height: 100vh;
+}
+
+/* Custom gradient utilities */
+.bg-gradient-maritime {
+  background: linear-gradient(135deg, #0ea5e9 0%, #0369a1 100%);
+}
+
+.bg-gradient-ocean {
+  background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+}
+
+/* Custom animations */
+@keyframes wave {
+  0%, 100% { 
+    transform: translateY(0);
+  }
+  50% { 
+    transform: translateY(-4px);
+  }
+}
+
+@keyframes float {
+  0%, 100% { 
+    transform: translateY(0) rotate(0deg);
+  }
+  50% { 
+    transform: translateY(-8px) rotate(1deg);
+  }
+}
+
+.animate-wave {
+  animation: wave 2s ease-in-out infinite;
+}
+
+.animate-float {
+  animation: float 3s ease-in-out infinite;
 }
 
 /* Custom scrollbar */
@@ -77,22 +147,6 @@ textarea:focus-visible {
   animation: spin 1s linear infinite;
 }
 
-/* Custom maritime wave animation */
-@keyframes maritimeWave {
-  0%, 100% { 
-    transform: translateY(0) scale(1);
-    opacity: 1;
-  }
-  50% { 
-    transform: translateY(-8px) scale(1.05);
-    opacity: 0.9;
-  }
-}
-
-.animate-maritime-wave {
-  animation: maritimeWave 3s ease-in-out infinite;
-}
-
 /* Backdrop blur fallback */
 .backdrop-blur-md {
   backdrop-filter: blur(12px);
@@ -110,12 +164,4 @@ textarea:focus-visible {
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
   border: 1px solid rgba(255, 255, 255, 0.2);
-}
-
-/* Maritime gradient text */
-.maritime-gradient-text {
-  background: linear-gradient(135deg, #0ea5e9 0%, #0369a1 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
 }
