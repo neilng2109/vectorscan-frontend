@@ -28,196 +28,173 @@ const LandingPage = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-blue-900 to-slate-800 relative overflow-hidden">
-      {/* Animated Background Pattern */}
-      <div className="absolute inset-0 opacity-10">
-        <div className="w-full h-full" style={{
-          backgroundImage: `url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.1'%3E%3Ccircle cx='30' cy='30' r='2'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")`
-        }}></div>
-      </div>
-      
-      {/* Main Content */}
-      <div className="relative z-10 min-h-screen flex items-center justify-center p-4">
-        <div className="w-full max-w-6xl">
-          {/* Hero Section */}
-          <div className="text-center mb-8">
-            <div className="flex items-center justify-center mb-4">
-              <div className="w-16 h-16 bg-gradient-to-br from-blue-400 to-blue-600 rounded-2xl flex items-center justify-center mr-4 shadow-xl">
-                <svg className="w-8 h-8 text-white" fill="currentColor" viewBox="0 0 24 24">
+    <div className="min-h-screen bg-gray-50">
+      {/* Header */}
+      <header className="bg-white shadow-sm border-b border-gray-200">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex items-center justify-between h-16">
+            {/* Logo */}
+            <div className="flex items-center">
+              <div className="w-10 h-10 bg-blue-600 rounded-lg flex items-center justify-center mr-3">
+                <svg className="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 24 24">
                   <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/>
                 </svg>
               </div>
-              <div>
-                <h1 className="text-4xl lg:text-5xl font-bold text-white tracking-tight">
-                  Vector<span className="text-blue-400">Scan</span>
-                </h1>
-                <div className="h-1 w-24 bg-gradient-to-r from-blue-400 to-blue-600 rounded-full mt-1"></div>
+              <h1 className="text-2xl font-bold text-gray-900">
+                Vector<span className="text-blue-600">Scan</span>
+              </h1>
+            </div>
+            
+            {/* Ship Photo - Small Header Accent */}
+            <div className="flex items-center">
+              <img 
+                src="/ship.jpg" 
+                alt="Maritime Vessel" 
+                className="w-12 h-8 object-cover rounded-md opacity-80 mr-2" 
+              />
+              <span className="text-sm text-gray-600 font-medium">Maritime Intelligence</span>
+            </div>
+          </div>
+        </div>
+      </header>
+
+      {/* Main Content */}
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+        <div className="grid lg:grid-cols-2 gap-12 items-center">
+          
+          {/* Left Side - Content */}
+          <div>
+            <div className="mb-8">
+              <h2 className="text-4xl font-bold text-gray-900 mb-4">
+                Advanced Maritime Intelligence Platform
+              </h2>
+              <p className="text-xl text-gray-600 leading-relaxed">
+                Harness the power of AI-driven diagnostics to revolutionize your maritime operations with instant fault detection and predictive maintenance.
+              </p>
+            </div>
+
+            {/* Statistics */}
+            <div className="grid grid-cols-3 gap-4 mb-8">
+              <div className="text-center bg-white rounded-lg p-4 shadow-sm border border-gray-200">
+                <div className="text-2xl font-bold text-blue-600 mb-1">410+</div>
+                <div className="text-sm text-gray-600">Fault Vectors</div>
+              </div>
+              <div className="text-center bg-white rounded-lg p-4 shadow-sm border border-gray-200">
+                <div className="text-2xl font-bold text-green-600 mb-1">AI</div>
+                <div className="text-sm text-gray-600">Powered</div>
+              </div>
+              <div className="text-center bg-white rounded-lg p-4 shadow-sm border border-gray-200">
+                <div className="text-2xl font-bold text-purple-600 mb-1">24/7</div>
+                <div className="text-sm text-gray-600">Available</div>
               </div>
             </div>
-            <p className="text-xl text-blue-100 font-light mb-2">
-              🚢 Advanced Maritime Intelligence Platform
-            </p>
-            <p className="text-sm text-blue-200 max-w-2xl mx-auto leading-relaxed opacity-90">
-              Harness the power of AI-driven diagnostics to revolutionize your maritime operations with instant fault detection and predictive maintenance.
-            </p>
+
+            {/* Features */}
+            <div className="space-y-6">
+              <div className="flex items-start">
+                <div className="w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center mr-4 mt-1">
+                  <span className="text-blue-600 text-sm">⚡</span>
+                </div>
+                <div>
+                  <h3 className="text-lg font-semibold text-gray-900 mb-2">Instant Diagnosis</h3>
+                  <p className="text-gray-600">Get comprehensive fault analysis in seconds, not hours. Our AI processes complex maritime data instantly.</p>
+                </div>
+              </div>
+              
+              <div className="flex items-start">
+                <div className="w-8 h-8 bg-green-100 rounded-lg flex items-center justify-center mr-4 mt-1">
+                  <span className="text-green-600 text-sm">🧠</span>
+                </div>
+                <div>
+                  <h3 className="text-lg font-semibold text-gray-900 mb-2">AI Intelligence</h3>
+                  <p className="text-gray-600">Machine learning algorithms trained on maritime fault patterns provide expert-level insights.</p>
+                </div>
+              </div>
+              
+              <div className="flex items-start">
+                <div className="w-8 h-8 bg-purple-100 rounded-lg flex items-center justify-center mr-4 mt-1">
+                  <span className="text-purple-600 text-sm">📈</span>
+                </div>
+                <div>
+                  <h3 className="text-lg font-semibold text-gray-900 mb-2">Predictive Analytics</h3>
+                  <p className="text-gray-600">Prevent costly breakdowns with predictive maintenance recommendations based on historical data.</p>
+                </div>
+              </div>
+            </div>
           </div>
 
-          {/* Two Column Layout */}
-          <div className="grid lg:grid-cols-2 gap-0 bg-white/5 backdrop-blur-md rounded-2xl shadow-2xl border border-white/10 overflow-hidden">
-            
-            {/* Left Side - Content */}
-            <div className="p-6 lg:p-8">
-              
-              {/* Statistics */}
-              <div className="grid grid-cols-3 gap-3 mb-6">
-                <div className="text-center bg-white/5 backdrop-blur-sm rounded-lg p-3 border border-white/10">
-                  <div className="text-xl font-bold text-blue-400 mb-1">410+</div>
-                  <div className="text-xs text-blue-200 opacity-80">🔍 Fault Vectors</div>
-                </div>
-                <div className="text-center bg-white/5 backdrop-blur-sm rounded-lg p-3 border border-white/10">
-                  <div className="text-xl font-bold text-green-400 mb-1">AI</div>
-                  <div className="text-xs text-green-200 opacity-80">🤖 Powered</div>
-                </div>
-                <div className="text-center bg-white/5 backdrop-blur-sm rounded-lg p-3 border border-white/10">
-                  <div className="text-xl font-bold text-purple-400 mb-1">24/7</div>
-                  <div className="text-xs text-purple-200 opacity-80">⚡ Available</div>
-                </div>
-              </div>
-
-              {/* Key Features */}
-              <div className="space-y-4">
-                <h3 className="text-lg font-bold text-white mb-4 flex items-center">
-                  <span className="w-6 h-6 bg-gradient-to-br from-blue-400 to-blue-600 rounded-lg flex items-center justify-center mr-2">
-                    <span className="text-white text-xs">⚡</span>
-                  </span>
-                  Instant Diagnosis
-                </h3>
-                <p className="text-blue-200 text-sm leading-relaxed mb-4">
-                  Get comprehensive fault analysis in seconds, not hours. Our AI processes complex maritime data instantly.
-                </p>
-                
-                <div className="grid grid-cols-1 gap-3">
-                  <div className="bg-white/5 backdrop-blur-sm rounded-lg p-3 border border-white/10">
-                    <div className="flex items-center mb-2">
-                      <span className="w-5 h-5 bg-gradient-to-br from-green-400 to-green-600 rounded flex items-center justify-center mr-2">
-                        <span className="text-white text-xs">🧠</span>
-                      </span>
-                      <h4 className="text-sm font-semibold text-white">AI Intelligence</h4>
-                    </div>
-                    <p className="text-xs text-green-200 opacity-90">Machine learning algorithms trained on maritime fault patterns provide expert-level insights.</p>
-                  </div>
-                  
-                  <div className="bg-white/5 backdrop-blur-sm rounded-lg p-3 border border-white/10">
-                    <div className="flex items-center mb-2">
-                      <span className="w-5 h-5 bg-gradient-to-br from-purple-400 to-purple-600 rounded flex items-center justify-center mr-2">
-                        <span className="text-white text-xs">📈</span>
-                      </span>
-                      <h4 className="text-sm font-semibold text-white">Predictive Analytics</h4>
-                    </div>
-                    <p className="text-xs text-purple-200 opacity-90">Prevent costly breakdowns with predictive maintenance recommendations based on historical data.</p>
-                  </div>
-                  
-                  <div className="bg-white/5 backdrop-blur-sm rounded-lg p-3 border border-white/10">
-                    <div className="flex items-center mb-2">
-                      <span className="w-5 h-5 bg-gradient-to-br from-yellow-400 to-orange-500 rounded flex items-center justify-center mr-2">
-                        <span className="text-white text-xs">🛠️</span>
-                      </span>
-                      <h4 className="text-sm font-semibold text-white">Expert Recommendations</h4>
-                    </div>
-                    <p className="text-xs text-yellow-200 opacity-90">Receive detailed repair instructions and maintenance schedules from maritime engineering experts.</p>
-                  </div>
-                </div>
-
-                {/* Maritime Status */}
-                <div className="flex items-center justify-center mt-4 pt-4 border-t border-white/10">
-                  <div className="flex items-center bg-white/5 backdrop-blur-sm rounded-lg p-2 border border-white/10">
-                    <div className="w-4 h-4 bg-gradient-to-br from-blue-400 to-blue-600 rounded mr-2 flex-shrink-0 flex items-center justify-center">
-                      <span className="text-white text-xs">🚢</span>
-                    </div>
-                    <div className="text-blue-200">
-                      <div className="text-xs font-medium">Real-time Analysis</div>
-                      <div className="text-xs opacity-60">Advanced Diagnostics</div>
-                    </div>
-                  </div>
-                </div>
-              </div>
+          {/* Right Side - Login Form */}
+          <div className="bg-white rounded-xl shadow-lg border border-gray-200 p-8">
+            <div className="text-center mb-8">
+              <h2 className="text-2xl font-bold text-gray-900 mb-2">Welcome Aboard</h2>
+              <p className="text-gray-600">Access your maritime intelligence dashboard</p>
             </div>
 
-            {/* Right Side - Login Form */}
-            <div className="bg-white/5 backdrop-blur-sm p-6 lg:p-8 border-l border-white/10">
-              <div className="max-w-sm mx-auto">
-                <div className="text-center mb-6">
-                  <h2 className="text-2xl font-bold text-white mb-2">Welcome Aboard</h2>
-                  <p className="text-blue-200 text-sm">Access your maritime intelligence dashboard</p>
+            <form onSubmit={handleLogin} className="space-y-6">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Username</label>
+                <input
+                  type="text"
+                  value={username}
+                  onChange={(e) => setUsername(e.target.value)}
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+                  placeholder="Enter your username"
+                  required
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Password</label>
+                <input
+                  type="password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+                  placeholder="Enter your password"
+                  required
+                />
+              </div>
+              
+              {error && (
+                <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg text-sm">
+                  {error}
                 </div>
+              )}
+              
+              <button
+                type="submit"
+                disabled={loading}
+                className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-6 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center"
+              >
+                {loading ? (
+                  <>
+                    <svg className="animate-spin h-4 w-4 mr-2 text-white" viewBox="0 0 24 24">
+                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path>
+                    </svg>
+                    Signing In...
+                  </>
+                ) : (
+                  <>
+                    <svg className="w-4 h-4 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                      <path fillRule="evenodd" d="M3 3a1 1 0 000 2v8a2 2 0 002 2h2.586l-1.293 1.293a1 1 0 101.414 1.414L10 15.414l2.293 2.293a1 1 0 001.414-1.414L12.414 15H15a2 2 0 002-2V5a1 1 0 100-2H3zm11.707 4.707a1 1 0 00-1.414-1.414L10 9.586 8.707 8.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                    </svg>
+                    Access Dashboard
+                  </>
+                )}
+              </button>
+            </form>
 
-                <form onSubmit={handleLogin} className="space-y-4">
-                  <div>
-                    <label className="block text-sm font-semibold text-blue-200 mb-2">Username</label>
-                    <input
-                      type="text"
-                      value={username}
-                      onChange={(e) => setUsername(e.target.value)}
-                      className="w-full px-4 py-3 bg-white/10 backdrop-blur-sm border border-white/20 rounded-xl text-white placeholder-blue-300 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent transition-all duration-200"
-                      placeholder="Enter your username"
-                      required
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-semibold text-blue-200 mb-2">Password</label>
-                    <input
-                      type="password"
-                      value={password}
-                      onChange={(e) => setPassword(e.target.value)}
-                      className="w-full px-4 py-3 bg-white/10 backdrop-blur-sm border border-white/20 rounded-xl text-white placeholder-blue-300 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent transition-all duration-200"
-                      placeholder="Enter your password"
-                      required
-                    />
-                  </div>
-                  
-                  {error && (
-                    <div className="bg-red-500/20 backdrop-blur-sm border border-red-500/30 text-red-200 px-3 py-2 rounded-xl text-sm">
-                      {error}
-                    </div>
-                  )}
-                  
-                  <button
-                    type="submit"
-                    disabled={loading}
-                    className="w-full bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white font-bold py-3 px-6 rounded-xl transition-all duration-200 transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed shadow-xl flex items-center justify-center"
-                  >
-                    {loading ? (
-                      <>
-                        <svg className="animate-spin h-4 w-4 mr-2 text-white" viewBox="0 0 24 24">
-                          <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                          <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path>
-                        </svg>
-                        Signing In...
-                      </>
-                    ) : (
-                      <>
-                        <svg className="w-4 h-4 mr-2 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20" style={{width: '16px', height: '16px'}}>
-                          <path fillRule="evenodd" d="M3 3a1 1 0 000 2v8a2 2 0 002 2h2.586l-1.293 1.293a1 1 0 101.414 1.414L10 15.414l2.293 2.293a1 1 0 001.414-1.414L12.414 15H15a2 2 0 002-2V5a1 1 0 100-2H3zm11.707 4.707a1 1 0 00-1.414-1.414L10 9.586 8.707 8.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
-                        </svg>
-                        Access Dashboard
-                      </>
-                    )}
-                  </button>
-                </form>
-
-                {/* Demo Credentials */}
-                <div className="mt-6 p-3 bg-white/5 backdrop-blur-sm rounded-xl border border-white/10">
-                  <h4 className="text-sm font-semibold text-blue-200 mb-2 text-center">Demo Credentials</h4>
-                  <div className="space-y-1 text-xs">
-                    <div className="flex justify-between items-center">
-                      <span className="text-blue-300">Username:</span>
-                      <code className="bg-black/30 px-2 py-1 rounded text-green-300 font-mono">captain</code>
-                    </div>
-                    <div className="flex justify-between items-center">
-                      <span className="text-blue-300">Password:</span>
-                      <code className="bg-black/30 px-2 py-1 rounded text-green-300 font-mono">demo123</code>
-                    </div>
-                  </div>
+            {/* Demo Credentials */}
+            <div className="mt-8 p-4 bg-gray-50 rounded-lg border border-gray-200">
+              <h4 className="text-sm font-semibold text-gray-700 mb-3 text-center">Demo Credentials</h4>
+              <div className="space-y-2 text-sm">
+                <div className="flex justify-between items-center">
+                  <span className="text-gray-600">Username:</span>
+                  <code className="bg-gray-200 px-2 py-1 rounded text-gray-800 font-mono">captain</code>
+                </div>
+                <div className="flex justify-between items-center">
+                  <span className="text-gray-600">Password:</span>
+                  <code className="bg-gray-200 px-2 py-1 rounded text-gray-800 font-mono">demo123</code>
                 </div>
               </div>
             </div>
@@ -226,11 +203,13 @@ const LandingPage = () => {
       </div>
 
       {/* Footer */}
-      <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 text-center">
-        <p className="text-blue-300 text-sm opacity-70">
-          © 2024 VectorScan Maritime Solutions. AI-Powered Diagnostics.
-        </p>
-      </div>
+      <footer className="bg-white border-t border-gray-200 mt-16">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+          <p className="text-center text-gray-500 text-sm">
+            © 2024 VectorScan Maritime Solutions. AI-Powered Diagnostics.
+          </p>
+        </div>
+      </footer>
     </div>
   );
 };
