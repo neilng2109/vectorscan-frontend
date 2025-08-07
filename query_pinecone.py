@@ -91,24 +91,36 @@ def query_fault():
         
         data = request.json
         print("Received query data:", data)  # Add this for debug in server console
-
         if not data:
             return jsonify({'error': 'No data provided'}), 400
-            
-        fault_input = data.get('fault_description', '').strip()  # Changed to match
-        if not fault_description:
+        
+        fault_input = data.get('fault_description', '').strip()  # Correctly assigned
+        if not fault_input:  # Check fault_input, not fault_description
             return jsonify({'error': 'Fault input required'}), 400
         
         # Use AI-powered Pinecone query for real maritime fault diagnosis
-        result = query_fault_description_safe(fault_description, ship_filter=ship)
+        result = query_fault_description_safe(fault_input, ship_filter=ship)
         
         return jsonify({
             'result': result,
-            'fault_description': fault_description, # Updated key
+            'fault_description': fault_input,  # Consistent key
             'ship': ship,
             'user': current_user['username']
         }), 200
         
+    except Exception as e:
+        print(f"Query error: {str(e)}")  # For debugging
+        # Fallback response if AI service is unavailable
+        current_user = get_jwt_identity()
+        ship = current_user.get('ship', 'Unknown')
+        fault_input = data.get('fault_description', 'Unknown fault') if data else 'Unknown fault'
+        
+        fallback_result = f"AI service temporarily unavailable. Fault logged: {fault_input} on {ship}. Please contact technical support."
+        return jsonify({
+            'result': fallback_result,
+            'error': str(e),
+            'fallback': True
+        }), 200        
     except Exception as e:
         print(f"Query error: {str(e)}")  # For debugging
         # Fallback response if AI service is unavailable
