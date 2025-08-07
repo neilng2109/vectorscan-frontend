@@ -17,8 +17,16 @@ from safe_ai_query import query_fault_description_safe
 
 app = Flask(__name__)
 
-# Enable CORS for all routes - simplified configuration to fix login issue
-CORS(app, origins="https://www.vectorscan.io", supports_credentials=True)
+from flask_cors import CORS
+
+# ... other imports and app setup
+
+# Enable CORS for multiple origins (FlutterFlow preview, production frontend, etc.)
+CORS(app, origins=[
+  "https://www.vectorscan.io",  # Old frontend
+  "https://app.flutterflow.io",  # FlutterFlow preview domain (adjust if specific project URL)
+  "https://your-flutter-app-domain.com"  # Add your final deployed domain later
+], supports_credentials=True, methods=["GET", "POST", "OPTIONS"])
 
 app.config['JWT_SECRET_KEY'] = os.environ.get('JWT_SECRET_KEY', 'your-secure-key')
 jwt = JWTManager(app)
