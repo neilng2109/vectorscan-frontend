@@ -49,27 +49,20 @@ def health_check():
 def login():
     try:
         data = request.json or {}
+        logger.info(f"Login attempt with data: {data}")  # Add this line
         username = (data.get('username') or '').strip()
         password = (data.get('password') or '').strip()
-
         if not username or not password:
             return jsonify({'error': 'Username and password required'}), 400
-
         if username in users and users[username]['password'] == password:
-            identity = {
-                'username': username,
-                'role': users[username]['role'],
-                'ship': users[username]['ship']
-            }
+            identity = {'username': username, 'role': users[username]['role'], 'ship': users[username]['ship']}
             access_token = create_access_token(identity=identity)
-            logger.info(f"login_ok user={username}")
+            logger.info(f"Successful login for {username}")
             return jsonify({'token': access_token, 'user': identity}), 200
-
-        logger.warning(f"login_fail user={username}")
+        logger.warning(f"Invalid login attempt for {username} with data: {data}")
         return jsonify({'error': 'Invalid credentials'}), 401
-
     except Exception as e:
-        logger.exception("login_err")
+        logger.exception("Login error")
         return jsonify({'error': f'Login error: {str(e)}'}), 500
 
 @app.route('/query', methods=['POST'])
