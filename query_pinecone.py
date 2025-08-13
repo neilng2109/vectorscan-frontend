@@ -47,9 +47,10 @@ def health_check():
 
 @app.route('/login', methods=['POST'])
 def login():
+    data = request.json
+    logger.info(f"Raw request data: {request.get_data(as_text=True)}")  # Log raw data
+    logger.info(f"Parsed JSON data: {data}")  # Log parsed data
     try:
-        data = request.json or {}
-        logger.info(f"Login attempt with data: {data}")  # Add this line
         username = (data.get('username') or '').strip()
         password = (data.get('password') or '').strip()
         if not username or not password:
