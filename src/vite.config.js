@@ -3,7 +3,7 @@ import react from '@vitejs/plugin-react';
 
 export default defineConfig({
   plugins: [react()],
-  build: {
-    chunkSizeWarningLimit: 1000 * 1024,  // 1 MB in bytes
+  css: {
+    postcss: './postcss.config.js', // Explicitly point to PostCSS config
   },
 });
