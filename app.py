@@ -74,9 +74,9 @@ def query_fault():
         if not data:
             return jsonify({'error': 'No data provided'}), 400
             
-        fault_input = data.get('fault_input', '').strip()  # Changed to 'fault_input' to match frontend
+        fault_input = data.get('fault_description', '').strip()  # Changed to match frontend parameter
         if not fault_input:
-            return jsonify({'error': 'Fault input required'}), 400
+            return jsonify({'error': 'Fault description required'}), 400
         
         # Use AI-powered Pinecone query for real maritime fault diagnosis
         result = query_fault_description(fault_input, ship_filter=ship)
