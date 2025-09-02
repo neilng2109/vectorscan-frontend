@@ -65,11 +65,11 @@ const QueryPage = () => {
     doc.setFontSize(16);
     doc.text('VectorScan Fault Diagnosis', 10, 10);
     doc.setFontSize(12);
-    doc.text('Diagnosis: ' + result.diagnosis.trim(), 10, 30);
-    doc.text('Cause: ' + result.cause.trim(), 10, 40);
-    doc.text('Resolution: ' + result.resolution.trim(), 10, 50);
-    doc.text('Similar Past Faults: ' + result.similarFaults.trim(), 10, 60);
-    doc.text('Status: ' + result.status.trim(), 10, 80);
+    doc.text('Diagnosis: ' + (result.diagnosis.trim() || 'N/A'), 10, 30);
+    doc.text('Cause: ' + (result.cause.trim() || 'N/A'), 10, 40);
+    doc.text('Resolution: ' + (result.resolution.trim() || 'N/A'), 10, 50);
+    doc.text('Similar Past Faults: ' + (result.similarFaults.trim() || 'N/A'), 10, 60);
+    doc.text('Status: ' + (result.status.trim() || 'N/A'), 10, 80);
     doc.save('diagnosis.pdf');
   };
 
@@ -77,7 +77,7 @@ const QueryPage = () => {
     <div className="min-h-screen bg-gradient-to-b from-blue-900 to-blue-300 flex items-center justify-center font-sans">
       <div className="bg-white p-8 rounded-lg shadow-2xl w-full max-w-4xl">
         <header className="text-center mb-8">
-          <img src="/vectorscan-logo.png" alt="VectorScan Logo" className="h-20 mx-auto mb-4" />
+          <img src="/vectorscan-logo.png" alt="VectorScan Logo" className="h-24 mx-auto mb-4" />
           <h1 className="text-4xl font-bold text-blue-800">VectorScan Query</h1>
         </header>
         <form onSubmit={handleSubmit} className="space-y-4 bg-gray-50 p-6 rounded-lg shadow-inner">
@@ -102,33 +102,33 @@ const QueryPage = () => {
           {error && <p className="text-red-600 text-sm">{error}</p>}
         </form>
         {result && (
-          <div className="mt-6 p-6 bg-gray-50 rounded-lg shadow-inner">
+          <div className="mt-8 p-6 bg-gray-50 rounded-lg shadow-inner">
             <h2 className="text-xl font-semibold text-blue-800 mb-4">Diagnosis Result</h2>
             <div className="space-y-4">
               <div>
-                <h3 className="font-bold text-base">Diagnosis</h3>
-                <p className="text-sm">{result.diagnosis.trim()}</p>
+                <h3 className="font-bold">Diagnosis</h3>
+                <p>{result.diagnosis.trim() || 'N/A'}</p>
               </div>
               <div>
-                <h3 className="font-bold text-base">Cause</h3>
-                <p className="text-sm">{result.cause.trim()}</p>
+                <h3 className="font-bold">Cause</h3>
+                <p>{result.cause.trim() || 'N/A'}</p>
               </div>
               <div>
-                <h3 className="font-bold text-base">Resolution</h3>
-                <p className="text-sm">{result.resolution.trim()}</p>
+                <h3 className="font-bold">Resolution</h3>
+                <p>{result.resolution.trim() || 'N/A'}</p>
               </div>
               <div>
-                <h3 className="font-bold text-base">Similar Past Faults</h3>
-                <pre className="whitespace-pre-wrap text-sm">{result.similarFaults.trim()}</pre>
+                <h3 className="font-bold">Similar Past Faults</h3>
+                <pre className="whitespace-pre-wrap">{result.similarFaults.trim() || 'N/A'}</pre>
               </div>
               <div>
-                <h3 className="font-bold text-base">Status</h3>
-                <p className="text-sm">{result.status.trim()}</p>
+                <h3 className="font-bold">Status</h3>
+                <p>{result.status.trim() || 'N/A'}</p>
               </div>
             </div>
             <button
               onClick={handleDownloadPDF}
-              className="mt-4 bg-green-600 text-white p-2 rounded-md hover:bg-green-700 text-base"
+              className="mt-4 bg-green-600 text-white p-2 rounded-md hover:bg-green-700"
             >
               Download PDF
             </button>
