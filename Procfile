@@ -1,1 +1,1 @@
-web: gunicorn working_api:app 
+web: gunicorn query_pinecone:app
