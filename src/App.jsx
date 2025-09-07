@@ -1,15 +1,16 @@
-// src/App.jsx
-import React from 'react';
-import { Routes, Route } from 'react-router-dom';
-import LandingPage from './LandingPage.jsx';
-import QueryPage from './QueryPage.jsx';
+import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import Login from './Login';
+import Query from './Query';
 
 function App() {
   return (
-    <Routes>
-      <Route path="/" element={<LandingPage />} />
-      <Route path="/query" element={<QueryPage />} />
-    </Routes>
+    <BrowserRouter>
+      <Routes>
+        <Route path="/login" element={<Login />} />
+        <Route path="/query" element={<Query />} />
+        <Route path="/" element={<Navigate to="/login" />} />
+      </Routes>
+    </BrowserRouter>
   );
 }
 
