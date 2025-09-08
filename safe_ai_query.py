@@ -33,7 +33,7 @@ def query_fault_description_safe(fault_input, ship_filter=None):
         # query_filter = {"ship": ship_filter} if ship_filter and ship_filter != 'All' else None
         results = index.query(
             vector=fault_embedding,
-            top_k=3,
+            top_k=5,
             include_metadata=True,
             # filter=query_filter
         )
@@ -46,7 +46,7 @@ def query_fault_description_safe(fault_input, ship_filter=None):
         # Generate AI diagnosis
         context = ""
         if results['matches']:
-            for match in results['matches'][:2]:
+            for match in results['matches']:
                 metadata = match.get('metadata', {})
                 context += f"Similar fault: {metadata.get('fault', 'Unknown')} on {metadata.get('equipment', 'Unknown equipment')} - {metadata.get('cause', 'Unknown cause')}. Resolution: {metadata.get('resolution', 'N/A')}\n"
         else:
@@ -59,7 +59,7 @@ def query_fault_description_safe(fault_input, ship_filter=None):
         Similar past faults:
         {context}
         
-        Provide a concise diagnosis with cause and resolution in 50 words or less.
+        Provide a detailed diagnosis. Explain the likely cause and suggest a step-by-step resolution.
         Format as: **Diagnosis:** [text]
         **Cause:** [text]
         **Resolution:** [text]"""
@@ -67,7 +67,7 @@ def query_fault_description_safe(fault_input, ship_filter=None):
         ai_response = openai_client.chat.completions.create(
             model="gpt-4o-mini",
             messages=[{"role": "user", "content": prompt}],
-            max_tokens=100
+            max_tokens=300
         )
         
         diagnosis = ai_response.choices[0].message.content.strip()
