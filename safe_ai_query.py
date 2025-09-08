@@ -52,7 +52,7 @@ def query_fault_description_safe(fault_input, ship_filter=None):
         else:
             context = "No similar faults found."
         
-        prompt = f"You are a maritime fault diagnosis expert. 
+        prompt = f"""You are a maritime fault diagnosis expert. 
         Fault: '{fault_input}'
         Ship Filter: {ship_filter or 'All'}
         
@@ -62,7 +62,7 @@ def query_fault_description_safe(fault_input, ship_filter=None):
         Provide a concise diagnosis with cause and resolution in 50 words or less.
         Format as: **Diagnosis:** [text]
         **Cause:** [text]
-        **Resolution:** [text]"
+        **Resolution:** [text]"""
         
         ai_response = openai_client.chat.completions.create(
             model="gpt-4o-mini",
