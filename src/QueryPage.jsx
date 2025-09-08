@@ -6,7 +6,7 @@ const QueryPage = () => {
   const [faultDescription, setFaultDescription] = useState('');
   const [result, setResult] = useState(null);
   const [error, setError] = useState('');
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(false); // A small change to force a new build
 
   const handleSubmit = async (e) => {
     e.preventDefault();
