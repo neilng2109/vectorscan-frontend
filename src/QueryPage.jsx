@@ -10,6 +10,10 @@ const QueryPage = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    if (!faultDescription.trim()) {
+      setError('Please enter a fault description.');
+      return;
+    }
     setLoading(true);
     setResult(null);
     setError('');
