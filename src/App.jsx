@@ -1,6 +1,6 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import Login from './Login';
-import QueryPage from './pages/QueryPage';
+import QueryPage from './QueryPage';
 function App() {
   return (
     <BrowserRouter>
