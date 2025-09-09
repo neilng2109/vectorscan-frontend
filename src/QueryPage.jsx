@@ -89,7 +89,7 @@ const QueryPage = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-blue-900 to-blue-300 flex items-center justify-center font-sans">
-      <div className="bg-white p-8 rounded-lg shadow-2xl w-full max-w-6xl">
+      <div className="bg-white p-8 rounded-lg shadow-2xl max-w-6xl">
         <header className="text-center mb-8">
           <img src="/vectorscan-logo.png" alt="VectorScan Logo" className="h-24 mx-auto mb-4" />
           <h1 className="text-4xl font-bold text-blue-800">VectorScan Query</h1>
