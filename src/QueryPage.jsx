@@ -101,7 +101,7 @@ const QueryPage = () => {
               type="text"
               value={faultDescription}
               onChange={(e) => setFaultDescription(e.target.value)}
-              className="mt-1 block w-full p-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500 text-base"
+              className="mt-1 block p-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500 text-base"
               placeholder="e.g., main engine overheat"
               required
             />
@@ -109,7 +109,7 @@ const QueryPage = () => {
           <button
             type="submit"
             disabled={loading}
-            className="w-full bg-blue-600 text-white p-2 rounded-md hover:bg-blue-700 disabled:bg-blue-300 flex items-center justify-center text-base"
+            className="bg-blue-600 text-white p-2 rounded-md hover:bg-blue-700 disabled:bg-blue-300 flex items-center justify-center text-base"
           >
             {loading ? 'Submitting...' : 'Submit Query'}
           </button>
