@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
-import Login from './pages/Login';       // Ensure this path is correct
-import QueryPage from './pages/QueryPage'; // Ensure this path is correct
+import Login from './Login';       // Ensure this path is correct
+import QueryPage from './QueryPage'; // Ensure this path is correct
 
 function App() {
   // Initialize state by checking for a token in localStorage. `!!` converts the result to a boolean.
