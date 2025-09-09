@@ -2,22 +2,20 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 
-function Login() {
-  const [username, setUsername] = useState('');
-  const [password, setPassword] = useState('');
-  const [error, setError] = useState(null);
+function Login({ onLoginSuccess }) { // <-- Accept the prop here
+  // ... your other states (username, password, etc.)
   const navigate = useNavigate();
 
   const handleLogin = async (e) => {
-  e.preventDefault();
-  try {
-    console.log('Attempting login with:', { username, password });
-    const response = await axios.post('https://api.vectorscan.io/login', { username, password });
-    console.log('Login response:', response.data);
-    localStorage.setItem('token', response.data.token);
-    navigate('/query');
-  } catch (err) {
-    console.error('Login error:', err.response ? err.response.data : err.message);
+    e.preventDefault();
+    try {
+      const response = await axios.post('https://api.vectorscan.io/login', { username, password });
+      localStorage.setItem('token', response.data.token);
+      
+      onLoginSuccess(); // <-- Call this function to update the App's state
+      
+      navigate('/query');
+    } catch (err) {    console.error('Login error:', err.response ? err.response.data : err.message);
     setError('Login failed. Check credentials or contact support.');
   }
 };
@@ -25,14 +23,14 @@ function Login() {
 
   return (
     <div className="min-h-screen bg-gray-100 flex flex-col items-center justify-center p-4 font-['Inter']">
-      <header className="w-full max-w-5xl bg-blue-900 text-white p-4 rounded-t-lg flex justify-between items-center mb-8">
+      <header className="max-w-5xl bg-blue-900 text-white p-4 rounded-t-lg flex justify-between items-center mb-8">
         <div className="flex items-center gap-3">
           <img src="vectorscan-logo.png" alt="VectorScan Logo" className="h-16 w-auto" onError={() => console.log('Failed to load logo')} />
           <h1 className="text-2xl font-bold">VectorScan Troubleshooting Platform</h1>
         </div>
         <div className="text-lg">Integrated with CBM Systems</div>
       </header>
-      <main className="w-full max-w-md bg-white p-6 rounded-lg shadow-lg">
+      <main className="max-w-md bg-white p-6 rounded-lg shadow-lg">
         <form onSubmit={handleLogin} className="space-y-4">
           <h2 className="text-2xl font-semibold text-blue-900 mb-4">Login</h2>
           <div>

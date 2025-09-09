@@ -26,14 +26,16 @@ const QueryPage = () => {
     }
 
     try {
-      const response = await axios.post('https://api.vectorscan.io/query', {
-        fault_description: faultDescription,
-      }, {
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`,
-        },
-      });
+  const response = await axios.post('https://api.vectorscan.io/query', {
+    fault_description: faultDescription,
+  }, {
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${token}`,
+    },
+  });
+
+  console.log("RAW AI RESPONSE:", response.data.result); // <-- ADD THIS LINE
 
       if (response.data.error) {
         setError(response.data.error);
@@ -49,17 +51,25 @@ const QueryPage = () => {
   };
 
   const parseResult = (text) => {
-    const sections = { diagnosis: '', cause: '', resolution: '', similarFaults: '', status: '' };
-    const lines = text.split('\n');
-    let currentSection = '';
-    lines.forEach((line) => {
-      if (line.startsWith('**Diagnosis:**')) currentSection = 'diagnosis';
-      else if (line.startsWith('**Cause:**')) currentSection = 'cause';
-      else if (line.startsWith('**Resolution:**')) currentSection = 'resolution';
-      else if (line.startsWith('**Similar Past Faults:**')) currentSection = 'similarFaults';
-      else if (line.startsWith('**Status:**')) currentSection = 'status';
-      else if (currentSection) sections[currentSection] += line + '\n';
-    });
+  if (!text) return { diagnosis: '', cause: '', resolution: '', similarFaults: '', status: '' };
+  
+  const sections = { diagnosis: '', cause: '', resolution: '', similarFaults: '', status: '' };
+  const lines = text.split('\n');
+  let currentSection = '';
+
+  lines.forEach((line) => {
+    // This regex looks for the word, ignoring optional leading asterisks or spaces
+    if (/^..Diagnosis:/.test(line)) currentSection = 'diagnosis';
+    else if (/^..Cause:/.test(line)) currentSection = 'cause';
+    else if (/^..Resolution:/.test(line)) currentSection = 'resolution';
+    else if (/^..Similar Past Faults:/.test(line)) currentSection = 'similarFaults';
+    else if (/^..Status:/.test(line)) currentSection = 'status';
+    else if (currentSection) {
+      // This removes the heading from the text itself
+      const cleanLine = line.replace(/^..(Diagnosis|Cause|Resolution|Similar Past Faults|Status):\s*/, '');
+      sections[currentSection] += cleanLine + '\n';
+    }
+  });
     return sections;
   };
 
@@ -79,7 +89,7 @@ const QueryPage = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-blue-900 to-blue-300 flex items-center justify-center font-sans">
-      <div className="bg-white p-8 rounded-lg shadow-2xl w-full max-w-4xl">
+      <div className="bg-white p-8 rounded-lg shadow-2xl w-full max-w-6xl">
         <header className="text-center mb-8">
           <img src="/vectorscan-logo.png" alt="VectorScan Logo" className="h-24 mx-auto mb-4" />
           <h1 className="text-4xl font-bold text-blue-800">VectorScan Query</h1>
