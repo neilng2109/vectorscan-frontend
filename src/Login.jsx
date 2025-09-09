@@ -35,7 +35,7 @@ function Login({ onLoginSuccess }) {
         </div>
         <div className="text-lg">Integrated with CBM Systems</div>
       </header>
-      <main className="max-w-md bg-white p-6 rounded-lg shadow-lg">
+      <main className="max-w-lg bg-white p-6 rounded-lg shadow-lg w-full">
         <form onSubmit={handleLogin} className="space-y-4">
           <h2 className="text-2xl font-semibold text-blue-900 mb-4">Login</h2>
           <div>
@@ -45,7 +45,7 @@ function Login({ onLoginSuccess }) {
               type="text"
               value={username}
               onChange={(e) => setUsername(e.target.value)}
-              className="mt-1 p-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="mt-1 p-2 w-full border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
               required
             />
           </div>
@@ -60,7 +60,7 @@ function Login({ onLoginSuccess }) {
               required
             />
           </div>
-          <button type="submit" className=" bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700">
+          <button type="submit" className="w-full bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700">
             Login
           </button>
           {error && <p className="text-red-600 text-sm">{error}</p>}
