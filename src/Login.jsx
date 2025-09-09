@@ -2,8 +2,13 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 
-function Login({ onLoginSuccess }) { // <-- Accept the prop here
-  // ... your other states (username, password, etc.)
+function Login({ onLoginSuccess }) {
+  // --- MISSING STATE DECLARATIONS ADDED HERE ---
+  const [username, setUsername] = useState('');
+  const [password, setPassword] = useState('');
+  const [error, setError] = useState(null);
+  // -------------------------------------------
+
   const navigate = useNavigate();
 
   const handleLogin = async (e) => {
@@ -12,15 +17,15 @@ function Login({ onLoginSuccess }) { // <-- Accept the prop here
       const response = await axios.post('https://api.vectorscan.io/login', { username, password });
       localStorage.setItem('token', response.data.token);
       
-      onLoginSuccess(); // <-- Call this function to update the App's state
+      onLoginSuccess(); // Call this function to update the App's state
       
       navigate('/query');
-    } catch (err) {    console.error('Login error:', err.response ? err.response.data : err.message);
-    setError('Login failed. Check credentials or contact support.');
-  }
-};
+    } catch (err) {
+      console.error('Login error:', err.response ? err.response.data : err.message);
+      setError('Login failed. Check credentials or contact support.');
+    }
+  };
   
-
   return (
     <div className="min-h-screen bg-gray-100 flex flex-col items-center justify-center p-4 font-['Inter']">
       <header className="max-w-5xl bg-blue-900 text-white p-4 rounded-t-lg flex justify-between items-center mb-8">
