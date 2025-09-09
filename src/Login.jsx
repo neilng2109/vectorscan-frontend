@@ -66,7 +66,7 @@ function Login({ onLoginSuccess }) {
           {error && <p className="text-red-600 text-sm">{error}</p>}
         </form>
       </main>
-      <footer className="w-full max-w-5xl bg-gray-200 p-4 rounded-b-lg mt-4 text-center text-gray-600">
+      <footer className="max-w-5xl bg-gray-200 p-4 rounded-b-lg mt-4 text-center text-gray-600">
         VectorScan v1.0 | Contact: support@vectorscan.io | Updated: {new Date().toLocaleString('en-GB', { day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit', timeZone: 'Europe/Paris', timeZoneName: 'short' }).replace(',', '')}
       </footer>
     </div>
