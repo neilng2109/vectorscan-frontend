@@ -1,16 +1,3 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
-```
-
-That's it. Nothing else should be in that file. We want Tailwind to be the one and only source of truth for your application's styling.
-
-### The Final Deployment
-
-1.  **Save** this change to your `src/index.css` file.
-2.  **Commit and push** this final fix to your GitHub repository.
-    ```bash
-    git add .
-    git commit -m "fix: Simplify global CSS to remove conflicts"
-    git push
-    
