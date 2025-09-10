@@ -35,7 +35,7 @@ function Login({ onLoginSuccess }) {
         </div>
         <div className="text-lg">Integrated with CBM Systems</div>
       </header>
-      <main className="max-w-lg bg-white p-6 rounded-lg shadow-lg w-full">
+      <main className="max-w-lg bg-white p-6 rounded-lg shadow-lg">
         <form onSubmit={handleLogin} className="space-y-4">
           <h2 className="text-2xl font-semibold text-blue-900 mb-4">Login</h2>
           <div>
