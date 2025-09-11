@@ -10,16 +10,17 @@ print("Loaded env - PINECONE_API_KEY:", bool(os.getenv("PINECONE_API_KEY")))
 
 app = Flask(__name__)
 
-# --- CORS CHANGE IS HERE ---
-# Define the list of allowed frontend domains
+# --- START OF FIX ---
+# Define the complete list of allowed frontend domains
 allowed_origins = [
-    "https://www.vectorscan.io",
-    "https://iridescent-sunburst-b70f4e.netlify.app"  # <-- IMPORTANT: Replace with your actual Netlify URL
+    "https://vectorscan.io",                 # The naked domain
+    "https://www.vectorscan.io",             # The www subdomain
+    "https://iridescent-sunburst-b70f4e.netlify.app" # Your Netlify preview URL
 ]
 
-# Apply the CORS settings using the list
+# Apply the CORS settings with the full list
 CORS(app, origins=allowed_origins, supports_credentials=True, methods=["GET", "POST", "OPTIONS"])
-# -------------------------
+# --- END OF FIX ---
 
 app.config['JWT_SECRET_KEY'] = os.environ.get('JWT_SECRET_KEY', 'your-secure-key')
 jwt = JWTManager(app)
@@ -61,3 +62,4 @@ def health_check():
 
 if __name__ == '__main__':
     app.run(debug=True, host='0.0.0.0', port=int(os.environ.get('PORT', 5000)))
+

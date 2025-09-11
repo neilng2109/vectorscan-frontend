@@ -52,23 +52,33 @@ def query_fault_description_safe(fault_input, ship_filter=None):
         else:
             context = "No similar faults found."
         
-        prompt = f"""You are a maritime fault diagnosis expert. 
-        Fault: '{fault_input}'
-        Ship Filter: {ship_filter or 'All'}
-        
-        Similar past faults:
-        {context}
-        
-        Provide a detailed diagnosis. Explain the likely cause and suggest a step-by-step resolution.
-        Format as: **Diagnosis:** [text]
-        **Cause:** [text]
-        **Resolution:** [text]"""
-        
-        ai_response = openai_client.chat.completions.create(
-            model="gpt-4o-mini",
-            messages=[{"role": "user", "content": prompt}],
-            max_tokens=300
-        )
+       prompt = f"""
+    CONTEXT FROM PAST FAULTS:
+    {context}
+
+    USER QUERY:
+    '{fault_input}'
+    """
+
+    # UPDATED API CALL WITH A SYSTEM MESSAGE
+    ai_response = openai_client.chat.completions.create(
+        model="gpt-4o-mini",
+        messages=[
+            {
+                "role": "system",
+                "content": """You are VectorScan, an expert maritime fault diagnosis AI. Your user is an Electro-Technical Officer on a cruise ship.
+                Your task is to provide a clear, structured diagnosis based on the user's query and the provided context.
+                You MUST provide text for all three of the following sections, even if the context is limited. Do not omit any section.
+                - **Diagnosis:**
+                - **Cause:**
+                - **Resolution:**
+                """
+            },
+            {"role": "user", "content": prompt}
+        ],
+        max_tokens=300,
+        temperature=0.3 # Lower temperature for more consistent, less "creative" output
+    )
         
         diagnosis = ai_response.choices[0].message.content.strip()
         
