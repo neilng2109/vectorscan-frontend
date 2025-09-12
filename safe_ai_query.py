@@ -3,6 +3,7 @@ from dotenv import load_dotenv
 from openai import OpenAI
 from pinecone import Pinecone
 
+# This part remains the same
 load_dotenv(os.path.join(os.path.dirname(__file__), '.env'))
 PINECONE_API_KEY = os.getenv("PINECONE_API_KEY")
 OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
@@ -13,72 +14,48 @@ openai_client = OpenAI(api_key=OPENAI_API_KEY)
 
 def query_fault_description_safe(fault_input, ship_filter=None):
     try:
-        # Debug: Log API key status
-        print(f"PINECONE_API_KEY exists: {bool(PINECONE_API_KEY)}")
-        print(f"OPENAI_API_KEY exists: {bool(OPENAI_API_KEY)}")
-        print(f"PINECONE_API_KEY value: {PINECONE_API_KEY[:20] if PINECONE_API_KEY else 'None'}...")
-        print(f"OPENAI_API_KEY value: {OPENAI_API_KEY[:20] if OPENAI_API_KEY else 'None'}...")
+        if not PINECONE_API_KEY or not OPENAI_API_KEY:
+            return "Error: API keys not configured."
         
-        if not PINECONE_API_KEY or not OPENAI_API_KEY or PINECONE_API_KEY == "your-pinecone-api-key-here" or OPENAI_API_KEY == "your-openai-api-key-here":
-            print("API keys not configured")
-            return "Error: API keys not configured—please update .env and retry."
-        
-        print(f"Using AI-powered diagnosis for: {fault_input}")
-        
-        # Generate embedding
         response = openai_client.embeddings.create(input=fault_input, model="text-embedding-ada-002")
         fault_embedding = response.data[0].embedding
         
-        # Query Pinecone with ship filter (commented for now)
-        # query_filter = {"ship": ship_filter} if ship_filter and ship_filter != 'All' else None
+        query_filter = {"ship": {"$eq": ship_filter}} if ship_filter and ship_filter != 'all' else None
+        
         results = index.query(
             vector=fault_embedding,
-            top_k=5,
+            top_k=3,
             include_metadata=True,
-            # filter=query_filter
+            filter=query_filter
         )
         
-        print(f"Pinecone returned {len(results['matches'])} matches")
-        
-        if results['matches']:
-            print("Sample metadata:", results['matches'][0]['metadata'])
-        
-        # Generate AI diagnosis
         context = ""
-        if results['matches']:
-            for match in results['matches']:
-                metadata = match.get('metadata', {})
-                context += f"Similar fault: {metadata.get('fault', 'Unknown')} on {metadata.get('equipment', 'Unknown equipment')} - {metadata.get('cause', 'Unknown cause')}. Resolution: {metadata.get('resolution', 'N/A')}\n"
+        if results.matches:
+            for match in results.matches:
+                metadata = match.metadata
+                context += f"Similar fault: {metadata.get('fault', 'N/A')} on {metadata.get('equipment', 'N/A')} - {metadata.get('cause', 'N/A')}. Resolution: {metadata.get('resolution', 'N/A')}\n"
         else:
             context = "No similar faults found."
         
-       prompt = f"""
-    CONTEXT FROM PAST FAULTS:
-    {context}
+        # --- THIS IS THE CORRECTED SECTION ---
+        # The multi-line string is now properly formatted to avoid indentation errors.
+        prompt = (
+            f"You are a maritime fault diagnosis expert.\n"
+            f"Fault: '{fault_input}'\n"
+            f"Ship Filter: {ship_filter or 'All'}\n\n"
+            f"Similar past faults:\n{context}\n\n"
+            f"Provide a concise diagnosis with cause and resolution in 50 words or less.\n"
+            f"Format as: **Diagnosis:** [text]\n"
+            f"**Cause:** [text]\n"
+            f"**Resolution:** [text]"
+        )
+        # --- END OF CORRECTION ---
 
-    USER QUERY:
-    '{fault_input}'
-    """
-
-    # UPDATED API CALL WITH A SYSTEM MESSAGE
-    ai_response = openai_client.chat.completions.create(
-        model="gpt-4o-mini",
-        messages=[
-            {
-                "role": "system",
-                "content": """You are VectorScan, an expert maritime fault diagnosis AI. Your user is an Electro-Technical Officer on a cruise ship.
-                Your task is to provide a clear, structured diagnosis based on the user's query and the provided context.
-                You MUST provide text for all three of the following sections, even if the context is limited. Do not omit any section.
-                - **Diagnosis:**
-                - **Cause:**
-                - **Resolution:**
-                """
-            },
-            {"role": "user", "content": prompt}
-        ],
-        max_tokens=300,
-        temperature=0.3 # Lower temperature for more consistent, less "creative" output
-    )
+        ai_response = openai_client.chat.completions.create(
+            model="gpt-4o-mini",
+            messages=[{"role": "user", "content": prompt}],
+            max_tokens=100
+        )
         
         diagnosis = ai_response.choices[0].message.content.strip()
         
@@ -91,4 +68,18 @@ def query_fault_description_safe(fault_input, ship_filter=None):
         
     except Exception as e:
         print(f"AI diagnosis failed: {str(e)}")
-        return f"Error during AI query: {str(e)}. Please try again or contact support."
+        return f"Error during AI query: {str(e)}."
+```
+
+### Next Steps
+
+You are currently on the `temp-rollback` branch. You need to commit this fix and push it to the server.
+
+1.  **Save** the corrected `safe_ai_query.py` file.
+2.  In your command line (in the backend directory), run the following commands:
+    ```bash
+    git add .
+    git commit -m "fix: Correct indentation in safe_ai_query"
+    git push heroku temp-rollback:main --force
+    
+
