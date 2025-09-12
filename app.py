@@ -7,7 +7,7 @@ from query_pinecone import query_fault_description
 app = Flask(__name__)
 
 # Enable CORS for all routes - simplified configuration to fix login issue
-CORS(app, origins="*", supports_credentials=False, methods=['GET', 'POST', 'OPTIONS'], allow_headers=['Content-Type', 'Authorization'])
+CORS(app)
 
 app.config['JWT_SECRET_KEY'] = os.environ.get('JWT_SECRET_KEY', 'your-secure-key')
 jwt = JWTManager(app)
