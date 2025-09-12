@@ -35,10 +35,12 @@ const QueryPage = () => {
         },
       });
 
+      // --- ADD THIS LINE FOR FINAL DEBUGGING ---
+      console.log("Full response data from backend:", response.data);
+
       if (response.data.error) {
         setError(response.data.error);
       } else {
-        // --- THIS IS THE KEY CHANGE ---
         // The backend now sends a perfect JSON object, so no parsing is needed.
         setResult(response.data.result); 
       }
