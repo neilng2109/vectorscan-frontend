@@ -47,29 +47,33 @@ def query_fault_description_safe(fault_input, ship_filter=None):
                 metadata = match.metadata
                 context += f"- Fault: {metadata.get('fault', 'N/A')}, Cause: {metadata.get('cause', 'N/A')}, Resolution: {metadata.get('resolution', 'N/A')}\n"
         else:
-            context = "No similar historical faults found in the database."
+            context = "No similar historical faults were found in the database for this specific query."
         
-        # --- ENHANCED PROMPT ENGINEERING ---
+        # --- ENHANCED PROMPT v2 ---
         prompt = (
-            "You are a Chief Marine Engineer with 20 years of experience on large commercial vessels. "
-            "Analyze the following fault based on your expertise and the provided historical context. "
-            "Provide a detailed, structured response in a single, minified JSON object. Do not include any text or formatting outside of the JSON object. "
-            "The JSON object must contain the following keys: "
-            "'diagnosis' (string), "
-            "'confidence_score' (string: 'High', 'Medium', or 'Low'), "
-            "'root_causes' (an array of objects, each with 'cause' [string] and 'probability' [string: 'High', 'Medium', 'Low']), "
-            "'resolution_plan' (an array of strings representing step-by-step actions), "
-            "'preventative_actions' (an array of strings), "
-            "'disclaimer' (string: 'This is an AI-generated diagnosis and should be used as a reference. Always follow vessel-specific safety protocols and consult official manuals.').\n\n"
+            "You are a Chief Marine Engineer acting as an expert diagnostician. Your primary goal is to provide a detailed and actionable analysis based on the provided historical context. "
+            "Analyze the fault description below. Heavily weigh the 'Historical Context from Pinecone' to inform your diagnosis. If the context is empty, rely on your general expertise. "
+            "Your response MUST be a single, minified JSON object with the exact keys specified. Do not include any text outside the JSON object.\n\n"
+            "JSON Structure Required:\n"
+            "{\n"
+            "  \"diagnosis\": \"string\",\n"
+            "  \"reasoning\": \"string explaining how the historical context or general knowledge led to the diagnosis\",\n"
+            "  \"confidence_score\": \"string: High, Medium, or Low\",\n"
+            "  \"root_causes\": [{\"cause\": \"string\", \"probability\": \"string: High, Medium, Low\"}],\n"
+            "  \"resolution_plan\": [\"string (step-by-step actions)\"],\n"
+            "  \"preventative_actions\": [\"string\"],\n"
+            "  \"disclaimer\": \"string\"\n"
+            "}\n\n"
             f"--- Fault Description ---\n{fault_input}\n\n"
-            f"--- Historical Context ---\n{context}"
+            f"--- Historical Context from Pinecone ---\n{context}"
         )
 
-        print("Step 3: Sending enhanced prompt to OpenAI for generation...")
+
+        print("Step 3: Sending enhanced prompt v2 to OpenAI for generation...")
         ai_response = openai_client.chat.completions.create(
             model="gpt-4o-mini",
             messages=[{"role": "system", "content": prompt}],
-            max_tokens=500, # Increased tokens for a more detailed response
+            max_tokens=700, # Increased tokens for a more detailed response
             temperature=0.3,
             response_format={"type": "json_object"}
         )
