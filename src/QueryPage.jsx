@@ -8,6 +8,29 @@ const QueryPage = () => {
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
 
+  // This new, robust parser uses regular expressions to find the data.
+  const parseResult = (text) => {
+    if (!text || typeof text !== 'string') {
+      return { diagnosis: 'N/A', cause: 'N/A', resolution: 'N/A', similar_faults: 'N/A', status: 'N/A' };
+    }
+  
+    // Regex to find content between the bolded keywords. 's' flag allows '.' to match newlines.
+    const diagnosisMatch = text.match(/\*\*Diagnosis:\*\*(.*?)(?=\*\*Cause:\*\*|$)/s);
+    const causeMatch = text.match(/\*\*Cause:\*\*(.*?)(?=\*\*Resolution:\*\*|$)/s);
+    const resolutionMatch = text.match(/\*\*Resolution:\*\*(.*?)(?=\*\*Similar Past Faults:|\*\*Status:|$)/s);
+    const similarFaultsMatch = text.match(/\*\*Similar Past Faults:\*\*(.*?)(?=\*\*Status:|$)/s);
+    const statusMatch = text.match(/\*\*Status:\*\*(.*)/s);
+  
+    // Extract the matched group or default to 'N/A'
+    return {
+      diagnosis: diagnosisMatch ? diagnosisMatch[1].trim() : 'N/A',
+      cause: causeMatch ? causeMatch[1].trim() : 'N/A',
+      resolution: resolutionMatch ? resolutionMatch[1].trim() : 'N/A',
+      similar_faults: similarFaultsMatch ? similarFaultsMatch[1].trim() : 'No similar faults provided.',
+      status: statusMatch ? statusMatch[1].trim() : 'Status not provided.',
+    };
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!faultDescription.trim()) {
@@ -34,15 +57,12 @@ const QueryPage = () => {
           'Authorization': `Bearer ${token}`,
         },
       });
-
-      // --- ADD THIS LINE FOR FINAL DEBUGGING ---
-      console.log("Full response data from backend:", response.data);
-
+      
       if (response.data.error) {
         setError(response.data.error);
       } else {
-        // The backend now sends a perfect JSON object, so no parsing is needed.
-        setResult(response.data.result); 
+        // We now parse the 'result' string from the response data.
+        setResult(parseResult(response.data.result));
       }
     } catch (err) {
       console.error('Query error:', err);
@@ -51,8 +71,6 @@ const QueryPage = () => {
       setLoading(false);
     }
   };
-
-  // The 'parseResult' function has been removed as it is no longer necessary.
 
   const handleDownloadPDF = () => {
     if (!result) return;
@@ -76,12 +94,11 @@ const QueryPage = () => {
     doc.text(wrappedFault, 15, y + 5);
     y += wrappedFault.length * 5 + 10;
 
-    // Use the keys from the result object directly
     const sections = [
       { title: 'Diagnosis', content: result.diagnosis },
       { title: 'Probable Cause', content: result.cause },
       { title: 'Recommended Resolution', content: result.resolution },
-      { title: 'Similar Past Faults', content: result.similar_faults }, // Key name updated for consistency
+      { title: 'Similar Past Faults', content: result.similar_faults },
       { title: 'Status', content: result.status }
     ];
 
