@@ -33,6 +33,10 @@ const QueryPage = () => {
         headers: { 'Authorization': `Bearer ${token}` },
       });
 
+      // --- ADDED THIS LINE FOR DEBUGGING ---
+      console.log("Full response data from backend:", response.data); 
+      // ------------------------------------
+
       if (response.data.error) {
         setError(response.data.error);
       } else {
@@ -75,6 +79,14 @@ const QueryPage = () => {
     const wrappedDiagnosis = doc.splitTextToSize(result.diagnosis || 'N/A', 180);
     doc.text(wrappedDiagnosis, 15, y + 5);
     y += wrappedDiagnosis.length * 5 + 5;
+
+    doc.setFont("helvetica", "bold");
+    doc.text('Reasoning:', 15, y);
+    doc.setFont("helvetica", "normal");
+    const wrappedReasoning = doc.splitTextToSize(result.reasoning || 'N/A', 180);
+    doc.text(wrappedReasoning, 15, y + 5);
+    y += wrappedReasoning.length * 5 + 5;
+
     doc.setFont("helvetica", "bold");
     doc.text(`Confidence Score:`, 15, y);
     doc.setFont("helvetica", "normal");
@@ -157,6 +169,11 @@ const QueryPage = () => {
               <h3 className="font-bold text-lg text-gray-700">Diagnosis</h3>
               <p className="p-3 bg-gray-50 rounded-md">{result.diagnosis || 'N/A'}</p>
               <p className="text-sm text-gray-500 mt-1"><strong>Confidence Score:</strong> {result.confidence_score || 'N/A'}</p>
+            </div>
+
+            <div>
+              <h3 className="font-bold text-lg text-gray-700">Reasoning</h3>
+              <p className="p-3 bg-gray-50 rounded-md text-sm italic">{result.reasoning || 'N/A'}</p>
             </div>
             
             <div>
