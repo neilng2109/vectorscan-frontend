@@ -44,17 +44,43 @@ def login():
         return jsonify({'token': access_token, 'user': {'username': username, 'role': users[username]['role'], 'ship': users[username]['ship']}}), 200
     return jsonify({'error': 'Invalid credentials'}), 401
 
+# 1. The new, importable logic function
+# It takes the necessary data as arguments instead of getting them from the web request.
+def query_fault_description(fault_input, ship):
+    """
+    Queries the vector database for a fault description, filtered by ship.
+    """
+    # The core logic is just this one line
+    result = query_fault_description_safe(fault_input, ship_filter=ship)
+    # It returns the raw data, not a JSON response
+    return result
+
+# 2. The lean and clean Flask route handler
+# Its only job is to handle the web request and call the logic function.
 @app.route('/query', methods=['POST'])
 @jwt_required()
 def query_fault():
+    # Get user info from the JWT token
     current_user = get_jwt_identity()
     ship = current_user['ship']
+    
+    # Get the fault description from the incoming JSON
     data = request.json
     if not data or not data.get('fault_description'):
         return jsonify({'error': 'Fault input required'}), 400
+    
     fault_input = data.get('fault_description').strip()
-    result = query_fault_description_safe(fault_input, ship_filter=ship)
-    return jsonify({'result': result, 'fault_description': fault_input, 'ship': ship, 'user': current_user['username']}), 200
+    
+    # --- Call the logic function ---
+    result = query_fault_description(fault_input, ship)
+    
+    # Send the final response back to the browser
+    return jsonify({
+        'result': result,
+        'fault_description': fault_input,
+        'ship': ship,
+        'user': current_user['username']
+    }), 200
 
 @app.route('/health', methods=['GET'])
 def health_check():

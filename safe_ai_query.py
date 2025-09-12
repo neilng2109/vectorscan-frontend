@@ -69,17 +69,16 @@ def query_fault_description_safe(fault_input, ship_filter=None):
     except Exception as e:
         print(f"AI diagnosis failed: {str(e)}")
         return f"Error during AI query: {str(e)}."
-```
 
-### Next Steps
 
-You are currently on the `temp-rollback` branch. You need to commit this fix and push it to the server.
-
-1.  **Save** the corrected `safe_ai_query.py` file.
-2.  In your command line (in the backend directory), run the following commands:
-    ```bash
-    git add .
-    git commit -m "fix: Correct indentation in safe_ai_query"
-    git push heroku temp-rollback:main --force
-    
+# ### Next Steps
+#
+# # You are currently on the `temp-rollback` branch. You need to commit this fix and push it to the server.
+#
+# # 1.  Save the corrected `safe_ai_query.py` file.
+# # 2.  In your command line (in the backend directory), run the following commands:
+# #     ```bash
+# #     git add .
+# #     git commit -m "fix: Correct indentation in safe_ai_query"
+# #     git push heroku temp-rollback:main --force    
 
