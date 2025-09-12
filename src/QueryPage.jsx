@@ -6,7 +6,7 @@ const QueryPage = () => {
   const [faultDescription, setFaultDescription] = useState('');
   const [result, setResult] = useState(null);
   const [error, setError] = useState('');
-  const [loading, setLoading] = useState(false); // A small change to force a new build
+  const [loading, setLoading] = useState(false);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -26,21 +26,21 @@ const QueryPage = () => {
     }
 
     try {
-  const response = await axios.post('https://api.vectorscan.io/query', {
-    fault_description: faultDescription,
-  }, {
-    headers: {
-      'Content-Type': 'application/json',
-      'Authorization': `Bearer ${token}`,
-    },
-  });
-
-  console.log("RAW AI RESPONSE:", response.data.result); // <-- ADD THIS LINE
+      const response = await axios.post('https://api.vectorscan.io/query', {
+        fault_description: faultDescription,
+      }, {
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`,
+        },
+      });
 
       if (response.data.error) {
         setError(response.data.error);
       } else {
-        setResult(parseResult(response.data.result));
+        // --- THIS IS THE KEY CHANGE ---
+        // The backend now sends a perfect JSON object, so no parsing is needed.
+        setResult(response.data.result); 
       }
     } catch (err) {
       console.error('Query error:', err);
@@ -50,78 +50,52 @@ const QueryPage = () => {
     }
   };
 
-  const parseResult = (text) => {
-  if (!text) return { diagnosis: '', cause: '', resolution: '', similarFaults: '', status: '' };
-  
-  const sections = { diagnosis: '', cause: '', resolution: '', similarFaults: '', status: '' };
-  const lines = text.split('\n');
-  let currentSection = '';
-
-  lines.forEach((line) => {
-    // This regex looks for the word, ignoring optional leading asterisks or spaces
-    if (/^..Diagnosis:/.test(line)) currentSection = 'diagnosis';
-    else if (/^..Cause:/.test(line)) currentSection = 'cause';
-    else if (/^..Resolution:/.test(line)) currentSection = 'resolution';
-    else if (/^..Similar Past Faults:/.test(line)) currentSection = 'similarFaults';
-    else if (/^..Status:/.test(line)) currentSection = 'status';
-    else if (currentSection) {
-      // This removes the heading from the text itself
-      const cleanLine = line.replace(/^..(Diagnosis|Cause|Resolution|Similar Past Faults|Status):\s*/, '');
-      sections[currentSection] += cleanLine + '\n';
-    }
-  });
-    return sections;
-  };
+  // The 'parseResult' function has been removed as it is no longer necessary.
 
   const handleDownloadPDF = () => {
     if (!result) return;
     const doc = new jsPDF();
     const pageHeight = doc.internal.pageSize.height;
-    let y = 20; // Initial y position
+    let y = 20;
 
-    // --- HEADER ---
-    // Note: You would need to have your logo available. For this example, we'll draw a placeholder.
-    // doc.addImage(logoBase64, 'PNG', 15, 10, 40, 15); // Example for a real logo
     doc.setFontSize(22);
     doc.setFont("helvetica", "bold");
     doc.text('VectorScan Fault Diagnosis Report', 105, 18, { align: 'center' });
     doc.setLineWidth(0.5);
-    doc.line(15, 25, 195, 25); // Horizontal line
+    doc.line(15, 25, 195, 25);
 
     y += 15;
 
-    // --- CONTENT SECTIONS ---
     doc.setFontSize(12);
     doc.setFont("helvetica", "bold");
     doc.text('Initial Fault Description:', 15, y);
     doc.setFont("helvetica", "normal");
-    // Handle long text that needs to wrap
     const wrappedFault = doc.splitTextToSize(faultDescription, 180);
     doc.text(wrappedFault, 15, y + 5);
     y += wrappedFault.length * 5 + 10;
 
+    // Use the keys from the result object directly
     const sections = [
       { title: 'Diagnosis', content: result.diagnosis },
       { title: 'Probable Cause', content: result.cause },
       { title: 'Recommended Resolution', content: result.resolution },
-      { title: 'Similar Past Faults', content: result.similarFaults },
+      { title: 'Similar Past Faults', content: result.similar_faults }, // Key name updated for consistency
       { title: 'Status', content: result.status }
     ];
 
     sections.forEach(section => {
-      if (y > pageHeight - 30) { // Check if we need a new page
+      if (y > pageHeight - 30) {
         doc.addPage();
         y = 20;
       }
       doc.setFont("helvetica", "bold");
       doc.text(section.title + ':', 15, y);
       doc.setFont("helvetica", "normal");
-      const wrappedContent = doc.splitTextToSize(section.content.trim() || 'N/A', 180);
+      const wrappedContent = doc.splitTextToSize(String(section.content || 'N/A').trim(), 180);
       doc.text(wrappedContent, 15, y + 5);
       y += wrappedContent.length * 5 + 10;
     });
-
-    // --- FOOTER ---
+    
     const pageCount = doc.internal.getNumberOfPages();
     for (let i = 1; i <= pageCount; i++) {
         doc.setPage(i);
@@ -136,7 +110,7 @@ const QueryPage = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-blue-900 to-blue-300 flex items-center justify-center font-sans">
-      <div className="bg-white p-8 rounded-lg shadow-2xl max-w-6xl">
+      <div className="bg-white p-8 rounded-lg shadow-2xl max-w-6xl w-full mx-4">
         <header className="text-center mb-8">
           <img src="/vectorscan-logo.png" alt="VectorScan Logo" className="h-24 mx-auto mb-4" />
           <h1 className="text-4xl font-bold text-blue-800">VectorScan Query</h1>
@@ -148,7 +122,7 @@ const QueryPage = () => {
               type="text"
               value={faultDescription}
               onChange={(e) => setFaultDescription(e.target.value)}
-              className="mt-1 block p-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500 text-base"
+              className="mt-1 block w-full p-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500 text-base"
               placeholder="e.g., main engine overheat"
               required
             />
@@ -156,7 +130,7 @@ const QueryPage = () => {
           <button
             type="submit"
             disabled={loading}
-            className="bg-blue-600 text-white p-2 rounded-md hover:bg-blue-700 disabled:bg-blue-300 flex items-center justify-center text-base"
+            className="w-full bg-blue-600 text-white p-2 rounded-md hover:bg-blue-700 disabled:bg-blue-300 flex items-center justify-center text-base"
           >
             {loading ? 'Submitting...' : 'Submit Query'}
           </button>
@@ -168,28 +142,28 @@ const QueryPage = () => {
             <div className="space-y-4">
               <div>
                 <h3 className="font-bold">Diagnosis</h3>
-                <p>{result.diagnosis.trim() || 'N/A'}</p>
+                <p>{result.diagnosis || 'N/A'}</p>
               </div>
               <div>
                 <h3 className="font-bold">Cause</h3>
-                <p>{result.cause.trim() || 'N/A'}</p>
+                <p>{result.cause || 'N/A'}</p>
               </div>
               <div>
                 <h3 className="font-bold">Resolution</h3>
-                <p>{result.resolution.trim() || 'N/A'}</p>
+                <p>{result.resolution || 'N/A'}</p>
               </div>
               <div>
                 <h3 className="font-bold">Similar Past Faults</h3>
-                <pre className="whitespace-pre-wrap">{result.similarFaults.trim() || 'N/A'}</pre>
+                <pre className="whitespace-pre-wrap font-sans text-sm">{result.similar_faults || 'N/A'}</pre>
               </div>
               <div>
                 <h3 className="font-bold">Status</h3>
-                <p>{result.status.trim() || 'N/A'}</p>
+                <p>{result.status || 'N/A'}</p>
               </div>
             </div>
             <button
               onClick={handleDownloadPDF}
-              className="mt-4 bg-green-600 text-white p-2 rounded-md hover:bg-green-700"
+              className="mt-6 w-full bg-green-600 text-white p-2 rounded-md hover:bg-green-700"
             >
               Download PDF
             </button>
@@ -201,3 +175,4 @@ const QueryPage = () => {
 };
 
 export default QueryPage;
+
