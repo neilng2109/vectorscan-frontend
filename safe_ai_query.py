@@ -19,18 +19,18 @@ def query_fault_description_safe(fault_input, ship_filter=None):
     Performs a full RAG query: embedding, Pinecone search, and OpenAI generation.
     Returns a rich, structured JSON object with a detailed diagnosis.
     """
-    print("--- Starting AI Diagnosis ---")
+    print("--- Starting Enhanced AI Diagnosis ---")
     if not PINECONE_API_KEY or not OPENAI_API_KEY:
         return {"error": "API keys not configured."}
 
     try:
-        # Step 1: Create embedding for the user's input
+        # Step 1: Create embedding
         print(f"Step 1: Creating embedding for '{fault_input}'...")
         response = openai_client.embeddings.create(input=fault_input, model="text-embedding-ada-002")
         fault_embedding = response.data[0].embedding
-        print("Step 1: Embedding created successfully.")
+        print("Step 1: Embedding created.")
 
-        # Step 2: Query Pinecone for similar historical faults
+        # Step 2: Query Pinecone
         print(f"Step 2: Querying Pinecone with ship filter '{ship_filter}'...")
         query_filter = {"ship": {"$eq": ship_filter}} if ship_filter and ship_filter != 'all' else None
         results = index.query(
