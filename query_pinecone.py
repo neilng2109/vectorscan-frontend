@@ -50,9 +50,14 @@ def query_fault_description(fault_input, ship):
     """
     Queries the vector database for a fault description, filtered by ship.
     """
-    # The core logic is just this one line
+    # This is the function that actually queries Pinecone and OpenAI
+    # The name might be slightly different in your code.
     result = query_fault_description_safe(fault_input, ship_filter=ship)
-    # It returns the raw data, not a JSON response
+
+    # ---- ADD THIS PRINT STATEMENT ----
+    # See what Pinecone is returning. Is it an empty list?
+    print(f"DEBUG: Context from Pinecone for ship '{ship}': {result}")
+    
     return result
 
 # 2. The lean and clean Flask route handler
