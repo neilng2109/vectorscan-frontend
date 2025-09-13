@@ -6,14 +6,42 @@ const QueryPage = () => {
   const [faultDescription, setFaultDescription] = useState('');
   const [result, setResult] = useState(null);
   const [error, setError] = useState('');
-  const [loading, setLoading] = useState(false); // A small change to force a new build
+  const [loading, setLoading] = useState(false);
+
+  // --- NEW DIAGNOSTIC PARSER ---
+  const parseResult = (text) => {
+    if (!text || typeof text !== 'string') {
+      return { diagnosis: 'N/A', cause: 'N/A', resolution: 'N/A', status: 'N/A' };
+    }
+  
+    // More robust regex to capture content between keywords, accounting for variations.
+    const diagnosisMatch = text.match(/\*\*Diagnosis:\*\*(.*?)(?=\*\*Cause:\*\*|$)/s);
+    const causeMatch = text.match(/\*\*Cause:\*\*(.*?)(?=\*\*Resolution:\*\*|$)/s);
+    const resolutionMatch = text.match(/\*\*Resolution:\*\*(.*?)(?=\*\*Status:|$)/s);
+    const statusMatch = text.match(/\*\*Status:\*\*(.*)/s);
+  
+    const parsedData = {
+      diagnosis: diagnosisMatch ? diagnosisMatch[1].trim() : 'Parsing failed.',
+      cause: causeMatch ? causeMatch[1].trim() : 'Parsing failed.',
+      resolution: resolutionMatch ? resolutionMatch[1].trim() : 'Parsing failed.',
+      status: statusMatch ? statusMatch[1].trim() : 'Parsing failed.',
+    };
+
+    // --- THIS IS THE NEW DIAGNOSTIC LOG ---
+    console.log("--- PARSER DIAGNOSTICS ---", {
+        inputText: text,
+        diagnosisMatch: diagnosisMatch,
+        causeMatch: causeMatch,
+        resolutionMatch: resolutionMatch,
+        statusMatch: statusMatch,
+        parsedData: parsedData
+    });
+
+    return parsedData;
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!faultDescription.trim()) {
-      setError('Please enter a fault description.');
-      return;
-    }
     setLoading(true);
     setResult(null);
     setError('');
@@ -26,16 +54,15 @@ const QueryPage = () => {
     }
 
     try {
-  const response = await axios.post('https://api.vectorscan.io/query', {
-    fault_description: faultDescription,
-  }, {
-    headers: {
-      'Content-Type': 'application/json',
-      'Authorization': `Bearer ${token}`,
-    },
-  });
+      const response = await axios.post('https://api.vectorscan.io/query', {
+        fault_description: faultDescription,
+      }, {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+        },
+      });
 
-  console.log("RAW AI RESPONSE:", response.data.result); // <-- ADD THIS LINE
+      console.log("RAW AI RESPONSE:", response.data.result);
 
       if (response.data.error) {
         setError(response.data.error);
@@ -50,105 +77,57 @@ const QueryPage = () => {
     }
   };
 
-  const parseResult = (text) => {
-  if (!text) return { diagnosis: '', cause: '', resolution: '', similarFaults: '', status: '' };
-  
-  const sections = { diagnosis: '', cause: '', resolution: '', similarFaults: '', status: '' };
-  const lines = text.split('\n');
-  let currentSection = '';
-
-  lines.forEach((line) => {
-    // This regex looks for the word, ignoring optional leading asterisks or spaces
-    if (/^..Diagnosis:/.test(line)) currentSection = 'diagnosis';
-    else if (/^..Cause:/.test(line)) currentSection = 'cause';
-    else if (/^..Resolution:/.test(line)) currentSection = 'resolution';
-    else if (/^..Similar Past Faults:/.test(line)) currentSection = 'similarFaults';
-    else if (/^..Status:/.test(line)) currentSection = 'status';
-    else if (currentSection) {
-      // This removes the heading from the text itself
-      const cleanLine = line.replace(/^..(Diagnosis|Cause|Resolution|Similar Past Faults|Status):\s*/, '');
-      sections[currentSection] += cleanLine + '\n';
-    }
-  });
-    return sections;
-  };
-
   const handleDownloadPDF = () => {
     if (!result) return;
     const doc = new jsPDF();
-    const pageHeight = doc.internal.pageSize.height;
-    let y = 20; // Initial y position
+    let yPos = 20;
 
-    // --- HEADER ---
-    // Note: You would need to have your logo available. For this example, we'll draw a placeholder.
-    // doc.addImage(logoBase64, 'PNG', 15, 10, 40, 15); // Example for a real logo
+    const addSection = (title, content) => {
+        if (yPos > 260) {
+            doc.addPage();
+            yPos = 20;
+        }
+        doc.setFontSize(14);
+        doc.setFont("helvetica", "bold");
+        doc.text(title, 15, yPos);
+        yPos += 8;
+        doc.setFontSize(12);
+        doc.setFont("helvetica", "normal");
+        const wrappedContent = doc.splitTextToSize(content, 180);
+        doc.text(wrappedContent, 15, yPos);
+        yPos += wrappedContent.length * 5 + 12;
+    };
+
     doc.setFontSize(22);
     doc.setFont("helvetica", "bold");
-    doc.text('VectorScan Fault Diagnosis Report', 105, 18, { align: 'center' });
-    doc.setLineWidth(0.5);
-    doc.line(15, 25, 195, 25); // Horizontal line
+    doc.text('VectorScan Fault Diagnosis Report', 105, 15, { align: 'center' });
+    yPos = 30;
 
-    y += 15;
+    addSection('Initial Fault Description:', faultDescription);
+    addSection('AI-Powered Diagnosis:', result.diagnosis);
+    addSection('Probable Cause:', result.cause);
+    addSection('Recommended Resolution:', result.resolution);
+    addSection('Status:', result.status);
 
-    // --- CONTENT SECTIONS ---
-    doc.setFontSize(12);
-    doc.setFont("helvetica", "bold");
-    doc.text('Initial Fault Description:', 15, y);
-    doc.setFont("helvetica", "normal");
-    // Handle long text that needs to wrap
-    const wrappedFault = doc.splitTextToSize(faultDescription, 180);
-    doc.text(wrappedFault, 15, y + 5);
-    y += wrappedFault.length * 5 + 10;
-
-    const sections = [
-      { title: 'Diagnosis', content: result.diagnosis },
-      { title: 'Probable Cause', content: result.cause },
-      { title: 'Recommended Resolution', content: result.resolution },
-      { title: 'Similar Past Faults', content: result.similarFaults },
-      { title: 'Status', content: result.status }
-    ];
-
-    sections.forEach(section => {
-      if (y > pageHeight - 30) { // Check if we need a new page
-        doc.addPage();
-        y = 20;
-      }
-      doc.setFont("helvetica", "bold");
-      doc.text(section.title + ':', 15, y);
-      doc.setFont("helvetica", "normal");
-      const wrappedContent = doc.splitTextToSize(section.content.trim() || 'N/A', 180);
-      doc.text(wrappedContent, 15, y + 5);
-      y += wrappedContent.length * 5 + 10;
-    });
-
-    // --- FOOTER ---
-    const pageCount = doc.internal.getNumberOfPages();
-    for (let i = 1; i <= pageCount; i++) {
-        doc.setPage(i);
-        doc.setFontSize(10);
-        doc.setTextColor(150);
-        doc.text(`Page ${i} of ${pageCount}`, doc.internal.pageSize.width - 25, pageHeight - 10);
-        doc.text(`Report generated by VectorScan on ${new Date().toLocaleDateString()}`, 15, pageHeight - 10);
-    }
-    
     doc.save(`VectorScan_Report_${new Date().toISOString().slice(0,10)}.pdf`);
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-blue-900 to-blue-300 flex items-center justify-center font-sans">
-      <div className="bg-white p-8 rounded-lg shadow-2xl max-w-6xl">
+    <div className="min-h-screen bg-gradient-to-b from-blue-900 to-blue-300 flex items-center justify-center font-sans p-4">
+      <div className="bg-white p-8 rounded-lg shadow-2xl w-full max-w-3xl">
         <header className="text-center mb-8">
-          <img src="/vectorscan-logo.png" alt="VectorScan Logo" className="h-24 mx-auto mb-4" />
+          <img src="/vectorscan-logo.png" alt="VectorScan Logo" className="h-20 mx-auto mb-4" />
           <h1 className="text-4xl font-bold text-blue-800">VectorScan Query</h1>
         </header>
-        <form onSubmit={handleSubmit} className="space-y-4 bg-gray-50 p-6 rounded-lg shadow-inner">
+        <form onSubmit={handleSubmit} className="space-y-4 bg-gray-50 p-6 rounded-lg shadow-inner mb-8">
           <div>
-            <label className="block text-sm font-medium text-gray-700">Fault Description</label>
+            <label htmlFor="fault-description" className="block text-sm font-medium text-gray-700 mb-1">Fault Description</label>
             <input
+              id="fault-description"
               type="text"
               value={faultDescription}
               onChange={(e) => setFaultDescription(e.target.value)}
-              className="mt-1 block p-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500 text-base"
+              className="w-full p-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500 text-base"
               placeholder="e.g., main engine overheat"
               required
             />
@@ -156,42 +135,38 @@ const QueryPage = () => {
           <button
             type="submit"
             disabled={loading}
-            className="bg-blue-600 text-white p-2 rounded-md hover:bg-blue-700 disabled:bg-blue-300 flex items-center justify-center text-base"
+            className="w-full bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 disabled:bg-blue-300 flex items-center justify-center text-base font-semibold"
           >
             {loading ? 'Submitting...' : 'Submit Query'}
           </button>
-          {error && <p className="text-red-600 text-sm">{error}</p>}
+          {error && <p className="text-red-600 text-sm mt-2">{error}</p>}
         </form>
         {result && (
-          <div className="mt-8 p-6 bg-gray-50 rounded-lg shadow-inner">
-            <h2 className="text-xl font-semibold text-blue-800 mb-4">Diagnosis Result</h2>
-            <div className="space-y-4">
+          <div className="p-6 bg-gray-50 rounded-lg shadow-inner">
+            <h2 className="text-2xl font-semibold text-blue-800 mb-6 text-center">Diagnosis Result</h2>
+            <div className="space-y-5">
               <div>
-                <h3 className="font-bold">Diagnosis</h3>
-                <p>{result.diagnosis.trim() || 'N/A'}</p>
+                <h3 className="font-bold text-gray-700 text-lg">Diagnosis</h3>
+                <p className="mt-1 text-gray-800 bg-white p-3 rounded">{result.diagnosis}</p>
               </div>
               <div>
-                <h3 className="font-bold">Cause</h3>
-                <p>{result.cause.trim() || 'N/A'}</p>
+                <h3 className="font-bold text-gray-700 text-lg">Cause</h3>
+                <p className="mt-1 text-gray-800 bg-white p-3 rounded">{result.cause}</p>
               </div>
               <div>
-                <h3 className="font-bold">Resolution</h3>
-                <p>{result.resolution.trim() || 'N/A'}</p>
+                <h3 className="font-bold text-gray-700 text-lg">Resolution</h3>
+                <p className="mt-1 text-gray-800 bg-white p-3 rounded">{result.resolution}</p>
               </div>
               <div>
-                <h3 className="font-bold">Similar Past Faults</h3>
-                <pre className="whitespace-pre-wrap">{result.similarFaults.trim() || 'N/A'}</pre>
-              </div>
-              <div>
-                <h3 className="font-bold">Status</h3>
-                <p>{result.status.trim() || 'N/A'}</p>
+                <h3 className="font-bold text-gray-700 text-lg">Status</h3>
+                <p className="mt-1 text-gray-800 bg-white p-3 rounded">{result.status}</p>
               </div>
             </div>
             <button
               onClick={handleDownloadPDF}
-              className="mt-4 bg-green-600 text-white p-2 rounded-md hover:bg-green-700"
+              className="mt-8 w-full bg-green-600 text-white py-2 px-4 rounded-md hover:bg-green-700 font-semibold"
             >
-              Download PDF
+              Download PDF Report
             </button>
           </div>
         )}
@@ -201,3 +176,4 @@ const QueryPage = () => {
 };
 
 export default QueryPage;
+
