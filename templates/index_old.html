@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>VectorScan</title>
+    <style>
+        body { font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; }
+        .form-group { margin-bottom: 15px; }
+        label { display: block; margin-bottom: 5px; }
+        select, textarea, button { width: 100%; padding: 8px; margin-top: 5px; }
+        .result { margin-top: 20px; padding: 10px; border: 1px solid #ccc; }
+    </style>
+</head>
+<body>
+    <h1>VectorScan - Maritime Fault Diagnosis</h1>
+    <form id="faultForm" action="/diagnose" method="POST">
+        <div class="form-group">
+            <label for="ship_id">Ship</label>
+            <select id="ship_id" name="ship_id" required>
+                <option value="">Select a ship</option>
+                {% for ship in ships %}
+                    <option value="{{ ship }}">{{ ship }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="form-group">
+            <label for="fault_description">Fault Description</label>
+            <textarea id="fault_description" name="fault_description" rows="4" required placeholder="e.g., Main Engine Overheat"></textarea>
+        </div>
+        <button type="submit">Diagnose Fault</button>
+    </form>
+    <div id="result" class="result" style="display: none;"></div>
+    <script>
+        document.getElementById("faultForm").addEventListener("submit", async (e) => {
+            e.preventDefault();
+            const formData = new FormData(e.target);
+            const data = {
+                fault_description: formData.get("fault_description"),
+                ship_id: formData.get("ship_id")
+            };
+            try {
+                const response = await fetch("/diagnose", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify(data)
+                });
+                const result = await response.json();
+                const resultDiv = document.getElementById("result");
+                resultDiv.style.display = "block";
+                resultDiv.innerHTML = result.error ? `<p style="color: red;">${result.error}</p>` : `<p>${result.result}</p>`;
+            } catch (err) {
+                document.getElementById("result").innerHTML = `<p style="color: red;">Failed to fetch diagnosis</p>`;
+            }
+        });
+    </script>
+</body>
+</html>

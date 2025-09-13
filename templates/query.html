@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VectorScan Troubleshooting Platform</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f5f5f5;
+        }
+        .header {
+            background-color: #2c5aa0;
+            color: white;
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .header h1 {
+            margin: 0;
+            font-size: 1.8rem;
+        }
+        .header .tagline {
+            font-size: 1rem;
+            opacity: 0.9;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 2rem auto;
+            padding: 0 2rem;
+        }
+        .query-section {
+            background: white;
+            padding: 2rem;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            margin-bottom: 2rem;
+        }
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: bold;
+            color: #333;
+        }
+        .form-group textarea {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 1rem;
+            resize: vertical;
+            min-height: 100px;
+        }
+        .btn-primary {
+            background-color: #2c5aa0;
+            color: white;
+            padding: 0.75rem 2rem;
+            border: none;
+            border-radius: 4px;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        .btn-primary:hover {
+            background-color: #1e3f73;
+        }
+        .example-dropdown {
+            float: right;
+            margin-top: 1rem;
+        }
+        .example-dropdown select {
+            padding: 0.5rem;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+        .result-section {
+            background: white;
+            padding: 2rem;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            display: none;
+        }
+        .footer {
+            text-align: center;
+            padding: 2rem;
+            color: #666;
+            font-size: 0.9rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>VectorScan Troubleshooting Platform</h1>
+        <div class="tagline">Integrated with CBM Systems</div>
+    </div>
+    
+    <div class="container">
+        <div class="query-section">
+            <h2>Enter Fault Description</h2>
+            <form id="faultForm">
+                <div class="form-group">
+                    <textarea id="fault_description" name="fault_description" placeholder="e.g., Emergency Generator Breaker Trip" required></textarea>
+                </div>
+                <button type="submit" class="btn-primary">Diagnose Fault</button>
+                <div class="example-dropdown">
+                    <select id="exampleQueries">
+                        <option value="">Example Queries</option>
+                        <option value="Main engine overheat alarm">Main engine overheat alarm</option>
+                        <option value="Generator frequency fluctuation">Generator frequency fluctuation</option>
+                        <option value="Hydraulic pump pressure drop">Hydraulic pump pressure drop</option>
+                        <option value="Navigation radar malfunction">Navigation radar malfunction</option>
+                    </select>
+                </div>
+            </form>
+        </div>
+        
+        <div id="result" class="result-section">
+            <h3>Diagnosis Result</h3>
+            <div id="resultContent"></div>
+        </div>
+    </div>
+    
+    <div class="footer">
+        VectorScan v1.0 | Contact: support@vectorscan.io | Updated: 23 Jul 2025 20:45 CEST
+    </div>
+    
+    <script>
+        // Handle example query selection
+        document.getElementById('exampleQueries').addEventListener('change', function() {
+            const selectedExample = this.value;
+            if (selectedExample) {
+                document.getElementById('fault_description').value = selectedExample;
+            }
+        });
+        
+        // Handle form submission
+        document.getElementById('faultForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const faultDescription = document.getElementById('fault_description').value;
+            if (!faultDescription.trim()) {
+                alert('Please enter a fault description.');
+                return;
+            }
+            
+            // Get JWT token from localStorage
+            const token = localStorage.getItem('token');
+            if (!token) {
+                alert('Please log in first.');
+                window.location.href = '/';
+                return;
+            }
+            
+            try {
+                const response = await fetch('/query', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify({
+                        fault_input: faultDescription
+                    })
+                });
+                
+                const data = await response.json();
+                
+                if (response.ok) {
+                    document.getElementById('resultContent').innerHTML = `<p>${data.result}</p>`;
+                    document.getElementById('result').style.display = 'block';
+                } else {
+                    alert('Error: ' + (data.error || 'Unknown error'));
+                }
+            } catch (error) {
+                alert('Network error: ' + error.message);
+            }
+        });
+    </script>
+</body>
+</html>
