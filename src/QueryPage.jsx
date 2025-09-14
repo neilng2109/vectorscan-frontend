@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
-import axios from 'axios';
+// 1. Import our new, smart API client.
+import apiClient from './api'; 
 import jsPDF from 'jspdf';
 
 const QueryPage = () => {
@@ -8,36 +9,21 @@ const QueryPage = () => {
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
 
-  // --- NEW DIAGNOSTIC PARSER ---
+  // 2. KEEP the robust parser, as it's essential for displaying the results.
   const parseResult = (text) => {
     if (!text || typeof text !== 'string') {
       return { diagnosis: 'N/A', cause: 'N/A', resolution: 'N/A', status: 'N/A' };
     }
-  
-    // More robust regex to capture content between keywords, accounting for variations.
     const diagnosisMatch = text.match(/\*\*Diagnosis:\*\*(.*?)(?=\*\*Cause:\*\*|$)/s);
     const causeMatch = text.match(/\*\*Cause:\*\*(.*?)(?=\*\*Resolution:\*\*|$)/s);
     const resolutionMatch = text.match(/\*\*Resolution:\*\*(.*?)(?=\*\*Status:|$)/s);
     const statusMatch = text.match(/\*\*Status:\*\*(.*)/s);
-  
-    const parsedData = {
-      diagnosis: diagnosisMatch ? diagnosisMatch[1].trim() : 'Parsing failed.',
-      cause: causeMatch ? causeMatch[1].trim() : 'Parsing failed.',
-      resolution: resolutionMatch ? resolutionMatch[1].trim() : 'Parsing failed.',
-      status: statusMatch ? statusMatch[1].trim() : 'Parsing failed.',
+    return {
+      diagnosis: diagnosisMatch ? diagnosisMatch[1].trim() : 'Diagnosis not found.',
+      cause: causeMatch ? causeMatch[1].trim() : 'Cause not found.',
+      resolution: resolutionMatch ? resolutionMatch[1].trim() : 'Resolution not found.',
+      status: statusMatch ? statusMatch[1].trim() : 'Status not found.',
     };
-
-    // --- THIS IS THE NEW DIAGNOSTIC LOG ---
-    console.log("--- PARSER DIAGNOSTICS ---", {
-        inputText: text,
-        diagnosisMatch: diagnosisMatch,
-        causeMatch: causeMatch,
-        resolutionMatch: resolutionMatch,
-        statusMatch: statusMatch,
-        parsedData: parsedData
-    });
-
-    return parsedData;
   };
 
   const handleSubmit = async (e) => {
@@ -54,14 +40,12 @@ const QueryPage = () => {
     }
 
     try {
-      const response = await axios.post('https://api.vectorscan.io/query', {
-        fault_description: faultDescription,
-      }, {
-        headers: {
-          'Authorization': `Bearer ${token}`,
-        },
-      });
-
+      // 3. Use 'apiClient' for the request. The interceptor will now protect this call.
+      const response = await apiClient.post('/query', 
+        { fault_description: faultDescription },
+        { headers: { 'Authorization': `Bearer ${token}` } }
+      );
+      
       console.log("RAW AI RESPONSE:", response.data.result);
 
       if (response.data.error) {
@@ -70,8 +54,12 @@ const QueryPage = () => {
         setResult(parseResult(response.data.result));
       }
     } catch (err) {
+      // The interceptor will automatically handle 401 errors (expired sessions).
+      // This catch block will handle other errors, like the server being down.
       console.error('Query error:', err);
-      setError(err.response?.data?.error || 'Failed to submit query');
+      if (err.response?.status !== 401) {
+        setError(err.response?.data?.error || 'Failed to submit query');
+      }
     } finally {
       setLoading(false);
     }
@@ -83,10 +71,7 @@ const QueryPage = () => {
     let yPos = 20;
 
     const addSection = (title, content) => {
-        if (yPos > 260) {
-            doc.addPage();
-            yPos = 20;
-        }
+        if (yPos > 260) { doc.addPage(); yPos = 20; }
         doc.setFontSize(14);
         doc.setFont("helvetica", "bold");
         doc.text(title, 15, yPos);
