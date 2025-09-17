@@ -50,10 +50,6 @@ const handleDownloadPDF = () => {
   const maxWidth = 170;
   let yPos = 30;
 
-  // --- Branding: Add logo (if you have base64) ---
-  // Uncomment and replace with your logo base64 string if desired:
-  // doc.addImage(logoData, 'PNG', 150, 10, 40, 16);
-
   // Title
   doc.setFontSize(20);
   doc.text(result.fault_title || 'Diagnosis Report', 15, yPos);
@@ -64,13 +60,11 @@ const handleDownloadPDF = () => {
   doc.text('Diagnosis:', 15, yPos);
   yPos += 8;
   doc.setFontSize(12);
-  // WRAP diagnosis text
+
+  // **CORRECT WRAPPING**
   const diagnosisLines = doc.splitTextToSize(result.diagnosis || '', maxWidth);
-  diagnosisLines.forEach(line => {
-    doc.text(line, 15, yPos);
-    yPos += 7;
-  });
-  yPos += 5;
+  doc.text(diagnosisLines, 15, yPos);
+  yPos += diagnosisLines.length * 7 + 5;
 
   // Recommended Actions
   doc.setFontSize(14);
@@ -80,13 +74,8 @@ const handleDownloadPDF = () => {
   (result.recommended_actions || []).forEach(action => {
     const actionLines = doc.splitTextToSize(action, maxWidth - 10);
     doc.text("•", 18, yPos);
-    doc.text(actionLines[0], 22, yPos);
-    yPos += 7;
-    for (let i = 1; i < actionLines.length; i++) {
-      doc.text(actionLines[i], 22, yPos);
-      yPos += 7;
-    }
-    yPos += 2;
+    doc.text(actionLines, 22, yPos);  // **PASS THE ARRAY DIRECTLY**
+    yPos += actionLines.length * 7 + 2;
     if (yPos > 275) { doc.addPage(); yPos = 20; }
   });
 
