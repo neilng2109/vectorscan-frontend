@@ -7,37 +7,12 @@ const QueryPage = () => {
   const [result, setResult] = useState(null);
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+  const [showSimilar, setShowSimilar] = useState(true);
 
-  // --- NEW DIAGNOSTIC PARSER ---
-  const parseResult = (text) => {
-    if (!text || typeof text !== 'string') {
-      return { diagnosis: 'N/A', cause: 'N/A', resolution: 'N/A', status: 'N/A' };
-    }
-  
-    // More robust regex to capture content between keywords, accounting for variations.
-    const diagnosisMatch = text.match(/\*\*Diagnosis:\*\*(.*?)(?=\*\*Cause:\*\*|$)/s);
-    const causeMatch = text.match(/\*\*Cause:\*\*(.*?)(?=\*\*Resolution:\*\*|$)/s);
-    const resolutionMatch = text.match(/\*\*Resolution:\*\*(.*?)(?=\*\*Status:|$)/s);
-    const statusMatch = text.match(/\*\*Status:\*\*(.*)/s);
-  
-    const parsedData = {
-      diagnosis: diagnosisMatch ? diagnosisMatch[1].trim() : 'Parsing failed.',
-      cause: causeMatch ? causeMatch[1].trim() : 'Parsing failed.',
-      resolution: resolutionMatch ? resolutionMatch[1].trim() : 'Parsing failed.',
-      status: statusMatch ? statusMatch[1].trim() : 'Parsing failed.',
-    };
-
-    // --- THIS IS THE NEW DIAGNOSTIC LOG ---
-    console.log("--- PARSER DIAGNOSTICS ---", {
-        inputText: text,
-        diagnosisMatch: diagnosisMatch,
-        causeMatch: causeMatch,
-        resolutionMatch: resolutionMatch,
-        statusMatch: statusMatch,
-        parsedData: parsedData
-    });
-
-    return parsedData;
+  // --- NEW PARSER FOR RICHER RESPONSE ---
+  const parseResult = (data) => {
+    // If backend returns structured data, just use it
+    return data;
   };
 
   const handleSubmit = async (e) => {
@@ -57,57 +32,60 @@ const QueryPage = () => {
       const response = await axios.post('https://api.vectorscan.io/query', {
         fault_description: faultDescription,
       }, {
-        headers: {
-          'Authorization': `Bearer ${token}`,
-        },
+        headers: { 'Authorization': `Bearer ${token}` },
       });
-
-      console.log("RAW AI RESPONSE:", response.data.result);
 
       if (response.data.error) {
         setError(response.data.error);
       } else {
-        setResult(parseResult(response.data.result));
+        setResult(parseResult(response.data));
       }
     } catch (err) {
-      console.error('Query error:', err);
       setError(err.response?.data?.error || 'Failed to submit query');
     } finally {
       setLoading(false);
     }
   };
 
+  // PDF Download: now includes similar faults
   const handleDownloadPDF = () => {
     if (!result) return;
     const doc = new jsPDF();
     let yPos = 20;
 
-    const addSection = (title, content) => {
-        if (yPos > 260) {
-            doc.addPage();
-            yPos = 20;
-        }
-        doc.setFontSize(14);
-        doc.setFont("helvetica", "bold");
-        doc.text(title, 15, yPos);
-        yPos += 8;
-        doc.setFontSize(12);
-        doc.setFont("helvetica", "normal");
-        const wrappedContent = doc.splitTextToSize(content, 180);
-        doc.text(wrappedContent, 15, yPos);
-        yPos += wrappedContent.length * 5 + 12;
-    };
+    doc.setFontSize(18);
+    doc.text(result.fault_title || 'Diagnosis Report', 15, yPos);
+    yPos += 10;
 
-    doc.setFontSize(22);
-    doc.setFont("helvetica", "bold");
-    doc.text('VectorScan Fault Diagnosis Report', 105, 15, { align: 'center' });
-    yPos = 30;
+    doc.setFontSize(14);
+    doc.text('Diagnosis:', 15, yPos);
+    yPos += 8;
+    doc.setFontSize(12);
+    doc.text(result.diagnosis, 15, yPos);
+    yPos += 12;
 
-    addSection('Initial Fault Description:', faultDescription);
-    addSection('AI-Powered Diagnosis:', result.diagnosis);
-    addSection('Probable Cause:', result.cause);
-    addSection('Recommended Resolution:', result.resolution);
-    addSection('Status:', result.status);
+    doc.setFontSize(14);
+    doc.text('Recommended Actions:', 15, yPos);
+    yPos += 8;
+    doc.setFontSize(12);
+    result.recommended_actions?.forEach((action, idx) => {
+      doc.text(`• ${action}`, 20, yPos);
+      yPos += 7;
+    });
+
+    // Similar Faults Table
+    if (result.similar_faults?.length) {
+      yPos += 10;
+      doc.setFontSize(14);
+      doc.text('Similar Past Faults:', 15, yPos);
+      yPos += 8;
+      doc.setFontSize(10);
+      result.similar_faults.forEach((f, idx) => {
+        doc.text(`${f.equipment} | ${f.fault} | ${f.resolution} | ${f.date} | ${f.id}`, 15, yPos);
+        yPos += 6;
+        if (yPos > 270) { doc.addPage(); yPos = 20; }
+      });
+    }
 
     doc.save(`VectorScan_Report_${new Date().toISOString().slice(0,10)}.pdf`);
   };
@@ -117,18 +95,19 @@ const QueryPage = () => {
       <div className="bg-white p-8 rounded-lg shadow-2xl w-full max-w-3xl">
         <header className="text-center mb-8">
           <img src="/vectorscan-logo.png" alt="VectorScan Logo" className="h-20 mx-auto mb-4" />
-          <h1 className="text-4xl font-bold text-blue-800">VectorScan Query</h1>
+          <h1 className="text-4xl font-bold text-blue-800">VectorScan Troubleshooting Platform</h1>
+          <span className="text-sm text-gray-500">Integrated with CBM Systems</span>
         </header>
         <form onSubmit={handleSubmit} className="space-y-4 bg-gray-50 p-6 rounded-lg shadow-inner mb-8">
           <div>
-            <label htmlFor="fault-description" className="block text-sm font-medium text-gray-700 mb-1">Fault Description</label>
+            <label htmlFor="fault-description" className="block text-sm font-medium text-gray-700 mb-1">Enter Fault Description</label>
             <input
               id="fault-description"
               type="text"
               value={faultDescription}
               onChange={(e) => setFaultDescription(e.target.value)}
               className="w-full p-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500 text-base"
-              placeholder="e.g., main engine overheat"
+              placeholder="e.g., main engine fuel injector fault dg2"
               required
             />
           </div>
@@ -137,37 +116,75 @@ const QueryPage = () => {
             disabled={loading}
             className="w-full bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 disabled:bg-blue-300 flex items-center justify-center text-base font-semibold"
           >
-            {loading ? 'Submitting...' : 'Submit Query'}
+            {loading ? 'Diagnosing...' : 'Diagnose Fault'}
           </button>
           {error && <p className="text-red-600 text-sm mt-2">{error}</p>}
         </form>
         {result && (
           <div className="p-6 bg-gray-50 rounded-lg shadow-inner">
-            <h2 className="text-2xl font-semibold text-blue-800 mb-6 text-center">Diagnosis Result</h2>
-            <div className="space-y-5">
-              <div>
-                <h3 className="font-bold text-gray-700 text-lg">Diagnosis</h3>
-                <p className="mt-1 text-gray-800 bg-white p-3 rounded">{result.diagnosis}</p>
-              </div>
-              <div>
-                <h3 className="font-bold text-gray-700 text-lg">Cause</h3>
-                <p className="mt-1 text-gray-800 bg-white p-3 rounded">{result.cause}</p>
-              </div>
-              <div>
-                <h3 className="font-bold text-gray-700 text-lg">Resolution</h3>
-                <p className="mt-1 text-gray-800 bg-white p-3 rounded">{result.resolution}</p>
-              </div>
-              <div>
-                <h3 className="font-bold text-gray-700 text-lg">Status</h3>
-                <p className="mt-1 text-gray-800 bg-white p-3 rounded">{result.status}</p>
-              </div>
+            <h2 className="text-2xl font-semibold text-blue-800 mb-2">{result.fault_title || 'Diagnosis Result'}</h2>
+            <div className="mb-4">
+              <h3 className="font-bold text-gray-700 text-lg">Diagnosis</h3>
+              <p className="mt-1 text-gray-800 bg-white p-3 rounded">{result.diagnosis}</p>
             </div>
-            <button
-              onClick={handleDownloadPDF}
-              className="mt-8 w-full bg-green-600 text-white py-2 px-4 rounded-md hover:bg-green-700 font-semibold"
-            >
-              Download PDF Report
-            </button>
+            <div className="mb-4">
+              <h3 className="font-bold text-gray-700 text-lg">Recommended Actions</h3>
+              <ul className="list-disc pl-6 mt-1 text-gray-800 bg-white p-3 rounded">
+                {result.recommended_actions?.map((action, idx) => (
+                  <li key={idx}>{action}</li>
+                ))}
+              </ul>
+            </div>
+            <div className="flex gap-4 mt-4">
+              <button
+                onClick={handleDownloadPDF}
+                className="bg-green-600 text-white py-2 px-4 rounded-md hover:bg-green-700 font-semibold"
+              >
+                Download PDF
+              </button>
+              <a
+                href={result.cbm_link || "#"}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="bg-gray-300 text-blue-800 py-2 px-4 rounded-md font-semibold hover:bg-gray-400"
+              >
+                View in CBM System
+              </a>
+            </div>
+            <div className="mt-8">
+              <button
+                className="text-blue-600 underline mb-2"
+                onClick={() => setShowSimilar(!showSimilar)}
+              >
+                {showSimilar ? "Hide Similar Past Faults" : "Show Similar Past Faults"}
+              </button>
+              {showSimilar && result.similar_faults?.length > 0 && (
+                <div className="overflow-x-auto bg-white p-4 rounded shadow">
+                  <table className="min-w-full text-sm border-collapse">
+                    <thead>
+                      <tr className="bg-blue-100">
+                        <th className="px-2 py-1 border">Equipment</th>
+                        <th className="px-2 py-1 border">Fault</th>
+                        <th className="px-2 py-1 border">Resolution</th>
+                        <th className="px-2 py-1 border">Date</th>
+                        <th className="px-2 py-1 border">ID</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {result.similar_faults.map((f, idx) => (
+                        <tr key={f.id || idx}>
+                          <td className="px-2 py-1 border">{f.equipment}</td>
+                          <td className="px-2 py-1 border">{f.fault}</td>
+                          <td className="px-2 py-1 border">{f.resolution}</td>
+                          <td className="px-2 py-1 border">{f.date}</td>
+                          <td className="px-2 py-1 border">{f.id}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              )}
+            </div>
           </div>
         )}
       </div>
@@ -176,4 +193,3 @@ const QueryPage = () => {
 };
 
 export default QueryPage;
-
