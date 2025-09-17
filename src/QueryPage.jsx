@@ -44,25 +44,24 @@ const QueryPage = () => {
   const handleDownloadPDF = () => {
   if (!result) return;
   const doc = new jsPDF();
+  const maxWidth = 170; // Adjust for page margins
 
-  // Title Section
+  // Title
   doc.setFontSize(20);
   doc.setFont('helvetica', 'bold');
   doc.text(result.fault_title || 'Diagnosis Report', 15, 20);
-  doc.setDrawColor(0, 0, 128); // Blue
-  doc.setLineWidth(0.5);
-  doc.line(15, 25, 195, 25); // Horizontal line
 
-  // Diagnosis Section
+  // Diagnosis
   doc.setFontSize(14);
   doc.setFont('helvetica', 'bold');
   doc.text('Diagnosis:', 15, 35);
   doc.setFont('helvetica', 'normal');
   doc.setFontSize(12);
-  doc.text(doc.splitTextToSize(result.diagnosis || '', 170), 15, 42);
+  const diagnosisLines = doc.splitTextToSize(result.diagnosis || '', maxWidth);
+  doc.text(diagnosisLines, 15, 42);
 
-  // Recommended Actions Section
-  let yPos = 52;
+  // Recommended Actions
+  let yPos = 54 + diagnosisLines.length * 7;
   doc.setFontSize(14);
   doc.setFont('helvetica', 'bold');
   doc.text('Recommended Actions:', 15, yPos);
@@ -70,43 +69,12 @@ const QueryPage = () => {
   doc.setFont('helvetica', 'normal');
   doc.setFontSize(12);
   (result.recommended_actions || []).forEach((action, idx) => {
-    doc.circle(18, yPos - 2, 1, 'F'); // Bullet point
-    doc.text(doc.splitTextToSize(action, 160), 22, yPos);
-    yPos += 8 + (action.length > 80 ? 6 : 0); // Extra spacing for long actions
+    doc.circle(18, yPos - 2, 1, 'F');
+    const lines = doc.splitTextToSize(action, maxWidth - 7);
+    doc.text(lines, 22, yPos);
+    yPos += lines.length * 7;
     if (yPos > 270) { doc.addPage(); yPos = 20; }
   });
-
-  // Similar Faults Section
-  if (result.similar_faults && result.similar_faults.length) {
-    yPos += 8;
-    doc.setFontSize(14);
-    doc.setFont('helvetica', 'bold');
-    doc.text('Similar Past Faults:', 15, yPos);
-    yPos += 7;
-    doc.setFontSize(10);
-    doc.setFont('helvetica', 'normal');
-    // Table headers
-    const headers = ['Equipment', 'Fault', 'Resolution', 'Date', 'ID'];
-    let colX = [15, 55, 95, 155, 175];
-    headers.forEach((h, i) => {
-      doc.text(h, colX[i], yPos);
-    });
-    yPos += 6;
-    doc.setLineWidth(0.2);
-    doc.line(15, yPos, 200, yPos);
-    yPos += 2;
-
-    // Table rows
-    result.similar_faults.forEach((f, idx) => {
-      doc.text(f.equipment || '', colX[0], yPos);
-      doc.text(f.fault || '', colX[1], yPos);
-      doc.text(f.resolution || '', colX[2], yPos);
-      doc.text(f.date || '', colX[3], yPos);
-      doc.text(String(f.id || ''), colX[4], yPos);
-      yPos += 6;
-      if (yPos > 270) { doc.addPage(); yPos = 20; }
-    });
-  }
 
   // Footer
   doc.setFontSize(10);
