@@ -1,33 +1,48 @@
-import React, { useState } from 'react';
-import { Routes, Route, Navigate } from 'react-router-dom'; // Note: No BrowserRouter here
+import React, { useState, useEffect } from 'react';
+import { Routes, Route, useLocation } from 'react-router-dom';
 import Login from './Login';
 import QueryPage from './QueryPage';
+import ProtectedRoute from './components/ProtectedRoute';
 
 function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(!!localStorage.getItem('token'));
+  const location = useLocation();
+
+  useEffect(() => {
+    function handleStorageChange() {
+      setIsAuthenticated(!!localStorage.getItem('token'));
+    }
+    window.addEventListener('storage', handleStorageChange);
+    return () => window.removeEventListener('storage', handleStorageChange);
+  }, []);
+  useEffect(() => {
+    setIsAuthenticated(!!localStorage.getItem('token'));
+  }, [location]);
 
   const handleLoginSuccess = () => {
     setIsAuthenticated(true);
   };
 
   return (
-    // The <Router> has been removed from this file.
-    // We only need the <Routes> component now.
     <Routes>
-      <Route 
-        path="/login" 
-        element={<Login onLoginSuccess={handleLoginSuccess} />} 
+      <Route path="/login" element={<Login onLoginSuccess={handleLoginSuccess} />} />
+      <Route
+        path="/query"
+        element={
+          <ProtectedRoute>
+            <QueryPage />
+          </ProtectedRoute>
+        }
       />
-      
-      <Route 
-        path="/query" 
-        element={isAuthenticated ? <QueryPage /> : <Navigate to="/login" />} 
+      <Route
+        path="/"
+        element={
+          <ProtectedRoute>
+            <QueryPage />
+          </ProtectedRoute>
+        }
       />
-      
-      <Route 
-        path="/" 
-        element={<Navigate to={isAuthenticated ? "/query" : "/login"} />} 
-      />
+      {/* Add more protected routes as needed */}
     </Routes>
   );
 }
