@@ -32,7 +32,7 @@ const QueryPage = () => {
       if (response.data.error) {
         setError(response.data.error);
       } else {
-        setResult(response.data); // Use the structured response directly!
+        setResult(response.data.result); // Use the structured response directly!
       }
     } catch (err) {
       setError(err.response?.data?.error || 'Failed to submit query');
