@@ -63,6 +63,8 @@ const handleDownloadPDF = () => {
 
   // **CORRECT WRAPPING**
   const diagnosisLines = doc.splitTextToSize(result.diagnosis || '', maxWidth);
+  console.log('Diagnosis split:', diagnosisLines);  // <-- ADD THIS LINE
+
   doc.text(diagnosisLines, 15, yPos);
   yPos += diagnosisLines.length * 7 + 5;
 
@@ -73,6 +75,8 @@ const handleDownloadPDF = () => {
   doc.setFontSize(12);
   (result.recommended_actions || []).forEach(action => {
     const actionLines = doc.splitTextToSize(action, maxWidth - 10);
+    console.log('Action split:', actionLines);  // <-- ADD THIS LINE
+
     doc.text("•", 18, yPos);
     doc.text(actionLines, 22, yPos);  // **PASS THE ARRAY DIRECTLY**
     yPos += actionLines.length * 7 + 2;
