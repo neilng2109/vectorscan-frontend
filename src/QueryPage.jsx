@@ -60,14 +60,32 @@ const QueryPage = () => {
   const diagnosisLines = doc.splitTextToSize(result.diagnosis || '', maxWidth);
   doc.text(diagnosisLines, 15, 42);
 
+  // Step-by-Step Troubleshooting
+  let yPos = 42 + diagnosisLines.length * 7 + 8;
+  if (result.troubleshooting_steps && result.troubleshooting_steps.length) {
+    doc.setFontSize(14);
+    doc.setFont('helvetica', 'bold');
+    doc.text('Step-by-Step Troubleshooting:', 15, yPos);
+    yPos += 7;
+    doc.setFontSize(12);
+    doc.setFont('helvetica', 'normal');
+    result.troubleshooting_steps.forEach((step, idx) => {
+      doc.circle(18, yPos - 2, 1, 'F');
+      const lines = doc.splitTextToSize(step, maxWidth - 7);
+      doc.text(lines, 22, yPos);
+      yPos += lines.length * 7;
+      if (yPos > 270) { doc.addPage(); yPos = 20; }
+    });
+    yPos += 3;
+  }
+
   // Recommended Actions
-  let yPos = 54 + diagnosisLines.length * 7;
   doc.setFontSize(14);
   doc.setFont('helvetica', 'bold');
   doc.text('Recommended Actions:', 15, yPos);
   yPos += 7;
-  doc.setFont('helvetica', 'normal');
   doc.setFontSize(12);
+  doc.setFont('helvetica', 'normal');
   (result.recommended_actions || []).forEach((action, idx) => {
     doc.circle(18, yPos - 2, 1, 'F');
     const lines = doc.splitTextToSize(action, maxWidth - 7);
