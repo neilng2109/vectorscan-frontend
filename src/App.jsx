@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Routes, Route, useLocation } from 'react-router-dom';
 import Login from './Login';
 import QueryPage from './QueryPage';
-import ProtectedRoute from './components/ProtectedRoute';
+import ProtectedRoute from './ProtectedRoute';
 
 function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(!!localStorage.getItem('token'));
