@@ -9,12 +9,6 @@ const QueryPage = () => {
   const [loading, setLoading] = useState(false);
   const [showSimilar, setShowSimilar] = useState(true);
 
-  // --- NEW PARSER FOR RICHER RESPONSE ---
-  const parseResult = (data) => {
-    // If backend returns structured data, just use it
-    return data;
-  };
-
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
@@ -38,7 +32,7 @@ const QueryPage = () => {
       if (response.data.error) {
         setError(response.data.error);
       } else {
-        setResult(parseResult(response.data));
+        setResult(response.data); // Use the structured response directly!
       }
     } catch (err) {
       setError(err.response?.data?.error || 'Failed to submit query');
@@ -47,7 +41,6 @@ const QueryPage = () => {
     }
   };
 
-  // PDF Download: now includes similar faults
   const handleDownloadPDF = () => {
     if (!result) return;
     const doc = new jsPDF();
@@ -61,20 +54,20 @@ const QueryPage = () => {
     doc.text('Diagnosis:', 15, yPos);
     yPos += 8;
     doc.setFontSize(12);
-    doc.text(result.diagnosis, 15, yPos);
+    doc.text(result.diagnosis || '', 15, yPos);
     yPos += 12;
 
     doc.setFontSize(14);
     doc.text('Recommended Actions:', 15, yPos);
     yPos += 8;
     doc.setFontSize(12);
-    result.recommended_actions?.forEach((action, idx) => {
+    (result.recommended_actions || []).forEach((action, idx) => {
       doc.text(`• ${action}`, 20, yPos);
       yPos += 7;
     });
 
     // Similar Faults Table
-    if (result.similar_faults?.length) {
+    if (result.similar_faults && result.similar_faults.length) {
       yPos += 10;
       doc.setFontSize(14);
       doc.text('Similar Past Faults:', 15, yPos);
@@ -107,7 +100,7 @@ const QueryPage = () => {
               value={faultDescription}
               onChange={(e) => setFaultDescription(e.target.value)}
               className="w-full p-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500 text-base"
-              placeholder="e.g., main engine fuel injector fault dg2"
+              placeholder="e.g., main engine overheat"
               required
             />
           </div>
@@ -130,7 +123,7 @@ const QueryPage = () => {
             <div className="mb-4">
               <h3 className="font-bold text-gray-700 text-lg">Recommended Actions</h3>
               <ul className="list-disc pl-6 mt-1 text-gray-800 bg-white p-3 rounded">
-                {result.recommended_actions?.map((action, idx) => (
+                {(result.recommended_actions || []).map((action, idx) => (
                   <li key={idx}>{action}</li>
                 ))}
               </ul>
@@ -142,14 +135,13 @@ const QueryPage = () => {
               >
                 Download PDF
               </button>
-              <a
-                href={result.cbm_link || "#"}
-                target="_blank"
-                rel="noopener noreferrer"
+              {/* Add your CBM system link logic here if available */}
+              <button
                 className="bg-gray-300 text-blue-800 py-2 px-4 rounded-md font-semibold hover:bg-gray-400"
+                disabled
               >
                 View in CBM System
-              </a>
+              </button>
             </div>
             <div className="mt-8">
               <button
@@ -158,7 +150,7 @@ const QueryPage = () => {
               >
                 {showSimilar ? "Hide Similar Past Faults" : "Show Similar Past Faults"}
               </button>
-              {showSimilar && result.similar_faults?.length > 0 && (
+              {showSimilar && result.similar_faults && result.similar_faults.length > 0 && (
                 <div className="overflow-x-auto bg-white p-4 rounded shadow">
                   <table className="min-w-full text-sm border-collapse">
                     <thead>
