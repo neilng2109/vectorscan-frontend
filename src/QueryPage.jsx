@@ -41,8 +41,6 @@ const QueryPage = () => {
     }
   };
 
-  import jsPDF from "jspdf";
-
 // Insert your base64 image data here (example placeholder)
 // const logoData = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAA..."; // replace with your actual logo data
 
