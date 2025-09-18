@@ -1,26 +1,13 @@
-import React, { useState, useEffect } from 'react';
-import { Routes, Route, useLocation } from 'react-router-dom';
+import React from 'react';
+import { Routes, Route } from 'react-router-dom';
 import Login from './Login';
 import QueryPage from './QueryPage';
 import ProtectedRoute from './ProtectedRoute';
 
 function App() {
-  const [isAuthenticated, setIsAuthenticated] = useState(!!localStorage.getItem('token'));
-  const location = useLocation();
-
-  useEffect(() => {
-    function handleStorageChange() {
-      setIsAuthenticated(!!localStorage.getItem('token'));
-    }
-    window.addEventListener('storage', handleStorageChange);
-    return () => window.removeEventListener('storage', handleStorageChange);
-  }, []);
-  useEffect(() => {
-    setIsAuthenticated(!!localStorage.getItem('token'));
-  }, [location]);
-
+  // If you need to pass handleLoginSuccess to Login, keep it:
   const handleLoginSuccess = () => {
-    setIsAuthenticated(true);
+    // You can trigger any additional logic here if needed
   };
 
   return (
